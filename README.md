@@ -1,4 +1,4 @@
-# Dentify---app
+# TURN-APP
 Software de gestion de turnos inteligentes  
 Integrantes:  
 * [DANIEL MACIAS](https://github.com/Danielmaciasperez455656)  
