@@ -1,0 +1,20 @@
+spring:
+    cloud:
+        gateway:
+            discovery:
+                locator:
+                    enabled: true   # Habilita el ruteo dinámico con Eureka
+                    lower-case-service-id: true   # Convierte los nombres a minúscula (más limpio en las rutas)
+
+eureka:
+    instance:
+        hostname: 127.0.0.1
+        instance-id: ${spring.application.name}:${random.uuid}
+        prefer-ip-address: true
+    client:
+        register-with-eureka: true
+        fetch-registry: true
+        service-url: 
+            defaultZone: http://${eureka.instance.hostname}:8761/eureka/
+server:
+    port: 8080
