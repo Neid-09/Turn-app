@@ -1,11 +1,13 @@
 spring:
     cloud:
         gateway:
-            discovery:
-                locator:
-                    enabled: true   # Habilita el ruteo dinámico con Eureka
-                    lower-case-service-id: true   # Convierte los nombres a minúscula (más limpio en las rutas)
-            default-filters: TokenRelay
+            server:
+                webflux:
+                    discovery:
+                        locator:
+                            enabled: true   # Habilita el ruteo dinámico con Eureka
+                            lower-case-service-id: true   # Convierte los nombres a minúscula (más limpio en las rutas)
+                    default-filters: TokenRelay
 
     security:
         oauth2:
@@ -16,10 +18,14 @@ spring:
                 registration:
                     spring-cloud-gateway-client:
                         client-id: spring-cloud-gateway-client
-                        client-secret: TY9ZR7OLobEUB2Pny7NWSxZdVHUptt3J
+                        client-secret: TY9ZR7OLobEUB2Pny7NWSxZdVHUptt3J 
                         provider: keycloak
                         authorization-grant-type: authorization_code
                         redirect-uri: http://localhost:8080/login/oauth2/code/spring-cloud-gateway-client
+                        scope:
+                            - openid
+                            - profile
+                            - email
 
 eureka:
     instance:

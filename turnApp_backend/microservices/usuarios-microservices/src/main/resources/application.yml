@@ -1,0 +1,38 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+  application:
+    name: usuarios-microservices
+  datasource:
+    url: jdbc:mysql://localhost:3306/gt_usuarios?createDatabaseIfNotExist=true&serverTimezone=UTC
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # --- 2. Configuración de JPA y Hibernate ---
+  jpa:
+    hibernate:
+
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # --- 3. Configuración de Seguridad (Keycloak Resource Server) ---
+  security:
+      oauth2:
+        resourceserver:
+          jwt:
+            issuer-uri: http://localhost:9090/realms/myturnapp-microservices-realm
+
+server:
+  port: 0
+
+keycloak:
+  admin-client:
+    server-url: http://localhost:9090
+    realm: myturnapp-microservices-realm 
+    client-id: spring-cloud-gateway-client
+    client-secret: TY9ZR7OLobEUB2Pny7NWSxZdVHUptt3J
