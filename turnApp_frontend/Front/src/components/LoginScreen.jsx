@@ -4,15 +4,15 @@ export default function LoginScreen() {
       <div className="flex flex-col items-center w-full max-w-md px-4">
         {/* Logo Circle */}
         <div className="w-24 h-24 bg-gray-300 rounded-full mb-6"></div>
-        
+
         {/* App Title */}
         <h1 className="text-2xl font-bold text-black mb-2">TURN-APP</h1>
         <p className="text-gray-500 mb-8">Gestión de turnos</p>
-        
+
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-sm p-8 w-full">
           <h2 className="text-xl font-semibold text-center mb-6">Iniciar sesión</h2>
-          
+
           <form className="space-y-4">
             {/* Email Field */}
             <div>
@@ -25,7 +25,7 @@ export default function LoginScreen() {
                 placeholder=""
               />
             </div>
-            
+
             {/* Password Field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -37,7 +37,7 @@ export default function LoginScreen() {
                 placeholder=""
               />
             </div>
-            
+
             {/* Submit Button */}
             <button
               type="submit"
