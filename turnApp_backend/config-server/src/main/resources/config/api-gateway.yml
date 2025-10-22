@@ -26,6 +26,9 @@ spring:
                             - openid
                             - profile
                             - email
+            resourceserver:
+                jwt:
+                    issuer-uri: http://localhost:9090/realms/myturnapp-microservices-realm
 
 eureka:
     instance:
