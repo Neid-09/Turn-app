@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import com.turnapp.microservices.usuarios_microservices.usuario.dto.ErrorResponse;
+import com.turnapp.microservices.usuarios_microservices.usuario.exception.KeycloakOperationException;
+import com.turnapp.microservices.usuarios_microservices.usuario.exception.SincronizacionException;
+import com.turnapp.microservices.usuarios_microservices.usuario.exception.UsuarioDuplicadoException;
+import com.turnapp.microservices.usuarios_microservices.usuario.exception.UsuarioNotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -113,5 +117,98 @@ public class GlobalExceptionHandler {
     log.warn("Argumento ilegal: {}", ex.getMessage());
     
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * Maneja excepciones cuando no se encuentra un usuario
+   */
+  @ExceptionHandler(UsuarioNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleUsuarioNotFoundException(
+      UsuarioNotFoundException ex,
+      WebRequest request) {
+    
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.NOT_FOUND.value())
+        .error("Not Found")
+        .message(ex.getMessage())
+        .path(request.getDescription(false).replace("uri=", ""))
+        .build();
+
+    log.warn("Usuario no encontrado: {}", ex.getMessage());
+    
+    return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+  }
+
+  /**
+   * Maneja excepciones de usuarios duplicados
+   */
+  @ExceptionHandler(UsuarioDuplicadoException.class)
+  public ResponseEntity<ErrorResponse> handleUsuarioDuplicadoException(
+      UsuarioDuplicadoException ex,
+      WebRequest request) {
+    
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.CONFLICT.value())
+        .error("Conflict")
+        .message(ex.getMessage())
+        .path(request.getDescription(false).replace("uri=", ""))
+        .build();
+
+    log.warn("Usuario duplicado: {}", ex.getMessage());
+    
+    return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+  }
+
+  /**
+   * Maneja excepciones de operaciones de Keycloak
+   */
+  @ExceptionHandler(KeycloakOperationException.class)
+  public ResponseEntity<ErrorResponse> handleKeycloakOperationException(
+      KeycloakOperationException ex,
+      WebRequest request) {
+    
+    HttpStatus status = ex.getStatusCode() >= 500 
+        ? HttpStatus.INTERNAL_SERVER_ERROR 
+        : HttpStatus.BAD_REQUEST;
+    
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(status.value())
+        .error("Keycloak Operation Error")
+        .message(ex.getMessage())
+        .path(request.getDescription(false).replace("uri=", ""))
+        .build();
+
+    log.error("Error en operación de Keycloak (status: {}): {}", ex.getStatusCode(), ex.getMessage());
+    
+    return new ResponseEntity<>(errorResponse, status);
+  }
+
+  /**
+   * Maneja excepciones de sincronización entre Keycloak y BD
+   */
+  @ExceptionHandler(SincronizacionException.class)
+  public ResponseEntity<ErrorResponse> handleSincronizacionException(
+      SincronizacionException ex,
+      WebRequest request) {
+    
+    // Determinar el status HTTP según el tipo de inconsistencia
+    HttpStatus status = HttpStatus.CONFLICT; // 409
+    String errorType = "Synchronization Error";
+    
+    ErrorResponse errorResponse = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(status.value())
+        .error(errorType)
+        .message(ex.getMessage() + " [Tipo: " + ex.getTipo() + "]")
+        .path(request.getDescription(false).replace("uri=", ""))
+        .build();
+
+    log.error("Error de sincronización Keycloak-BD: {} - Tipo: {}", 
+        ex.getMessage(), ex.getTipo());
+    
+    return new ResponseEntity<>(errorResponse, status);
   }
 }
