@@ -34,5 +34,5 @@ keycloak:
   admin-client:
     server-url: http://localhost:9090
     realm: myturnapp-microservices-realm 
-    client-id: spring-cloud-gateway-client
-    client-secret: TY9ZR7OLobEUB2Pny7NWSxZdVHUptt3J
+    client-id: usuarios-microservices-admin-client
+    client-secret: e1iIoneyVYqxNNIx8H4LRZtk8AUNfyhx
