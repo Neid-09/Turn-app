@@ -1,14 +1,14 @@
 // src/App.jsx
 import { Routes, Route } from 'react-router-dom';
-import LoginScreen from './components/LoginScreen';
+import LoginScreen from './components/login/LoginScreen';
 
 // Rutas de Empleado
-import EmployeeLayout from './components/EmployeeLayout';
-import EmployeeDashboard from './components/EmployeeDashboard';
+import EmployeeLayout from './components/employee/EmployeeLayout';
+import EmployeeDashboard from './components/employee/EmployeeDashboard';
 
 // Rutas de Admin (NUEVAS)
-import AdminLayout from './components/AdminLayout';       // <--- Importa esto
-import AdminDashboard from './components/AdminDashboard'; // <--- Importa esto
+import AdminLayout from './components/admin/AdminLayout';       // <--- Importa esto
+import AdminDashboard from './components/admin/AdminDashboard'; // <--- Importa esto
 
 function App() {
   return (
