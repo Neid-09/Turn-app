@@ -1,7 +1,6 @@
 package com.turnapp.microservices.usuarios_microservices.usuario.dto;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import com.turnapp.microservices.usuarios_microservices.usuario.model.RolApp;
 
@@ -14,7 +13,7 @@ import lombok.Builder;
 @Builder
 public record UsuarioResponse(
     // ID interno de la BD
-    UUID id,
+    String id,
     
     // ID de Keycloak
     String keycloakId,

@@ -1,7 +1,6 @@
 package com.turnapp.microservices.usuarios_microservices.usuario.service;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +32,7 @@ public interface IUsuarioService {
    * @param id ID interno del usuario en la base de datos
    * @return Información completa del usuario
    */
-  UsuarioResponse obtenerUsuarioPorId(UUID id);
+  UsuarioResponse obtenerUsuarioPorId(String id);
 
   /**
    * Obtiene la información completa de un usuario por su ID de Keycloak.
@@ -83,7 +82,7 @@ public interface IUsuarioService {
    * @param request Datos a actualizar
    * @return Información actualizada del usuario
    */
-  UsuarioResponse actualizarUsuario(UUID id, ActualizarUsuarioReq request);
+  UsuarioResponse actualizarUsuario(String id, ActualizarUsuarioReq request);
 
   /**
    * Cambia la contraseña de un usuario.
@@ -91,7 +90,7 @@ public interface IUsuarioService {
    * @param id ID interno del usuario
    * @param request Nueva contraseña
    */
-  void cambiarPassword(UUID id, CambiarPasswordReq request);
+  void cambiarPassword(String id, CambiarPasswordReq request);
 
   /**
    * Habilita o deshabilita un usuario en Keycloak.
@@ -100,14 +99,14 @@ public interface IUsuarioService {
    * @param enabled true para habilitar, false para deshabilitar
    * @return Información actualizada del usuario
    */
-  UsuarioResponse cambiarEstadoUsuario(UUID id, boolean enabled);
+  UsuarioResponse cambiarEstadoUsuario(String id, boolean enabled);
 
   /**
    * Elimina un usuario de Keycloak y de la base de datos local.
    * 
    * @param id ID interno del usuario
    */
-  void eliminarUsuario(UUID id);
+  void eliminarUsuario(String id);
 
   /**
    * Genera un reporte de sincronización entre Keycloak y BD.

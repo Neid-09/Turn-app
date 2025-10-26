@@ -1,7 +1,6 @@
 package com.turnapp.microservices.usuarios_microservices.usuario;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +13,7 @@ import com.turnapp.microservices.usuarios_microservices.usuario.model.Usuario;
 /**
  * Repositorio para la entidad Usuario.
  */
-public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
+public interface UsuarioRepository extends JpaRepository<Usuario, String> {
 
   /**
    * Busca un usuario por su ID de Keycloak.

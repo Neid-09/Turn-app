@@ -1,7 +1,5 @@
 package com.turnapp.microservices.usuarios_microservices.usuario.dto;
 
-import java.util.UUID;
-
 import com.turnapp.microservices.usuarios_microservices.usuario.model.RolApp;
 
 import lombok.Builder;
@@ -11,7 +9,7 @@ import lombok.Builder;
  */
 @Builder
 public record UsuarioListResponse(
-    UUID id,
+    String id,
     String keycloakId,
     String email,
     String firstName,

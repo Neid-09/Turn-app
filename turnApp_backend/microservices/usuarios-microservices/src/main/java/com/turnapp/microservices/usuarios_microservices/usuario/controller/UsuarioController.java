@@ -1,8 +1,6 @@
 package com.turnapp.microservices.usuarios_microservices.usuario.controller;
 
 import java.util.List;
-import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -140,7 +138,7 @@ public class UsuarioController {
    */
   @GetMapping("/{id}")
   @PreAuthorize("hasRole('" + RolKeycloak.ADMIN + "')")
-  public ResponseEntity<UsuarioResponse> obtenerUsuarioPorId(@PathVariable UUID id) {
+  public ResponseEntity<UsuarioResponse> obtenerUsuarioPorId(@PathVariable String id) {
     log.info("Solicitud de información del usuario ID: {}", id);
 
     UsuarioResponse usuario = usuarioService.obtenerUsuarioPorId(id);
@@ -253,7 +251,7 @@ public class UsuarioController {
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('" + RolKeycloak.ADMIN + "')")
   public ResponseEntity<ApiResponse> actualizarUsuario(
-      @PathVariable UUID id,
+      @PathVariable String id,
       @Valid @RequestBody ActualizarUsuarioReq request,
       @AuthenticationPrincipal Jwt jwt) {
     
@@ -277,7 +275,7 @@ public class UsuarioController {
   @PatchMapping("/{id}/password")
   @PreAuthorize("hasRole('" + RolKeycloak.ADMIN + "')")
   public ResponseEntity<ApiResponse> cambiarPassword(
-      @PathVariable UUID id,
+      @PathVariable String id,
       @Valid @RequestBody CambiarPasswordReq request,
       @AuthenticationPrincipal Jwt jwt) {
     
@@ -301,7 +299,7 @@ public class UsuarioController {
   @PatchMapping("/{id}/estado")
   @PreAuthorize("hasRole('" + RolKeycloak.ADMIN + "')")
   public ResponseEntity<ApiResponse> cambiarEstadoUsuario(
-      @PathVariable UUID id,
+      @PathVariable String id,
       @RequestParam boolean enabled,
       @AuthenticationPrincipal Jwt jwt) {
     
@@ -325,7 +323,7 @@ public class UsuarioController {
   @DeleteMapping("/{id}")
   @PreAuthorize("hasRole('" + RolKeycloak.ADMIN + "')")
   public ResponseEntity<ApiResponse> eliminarUsuario(
-      @PathVariable UUID id,
+      @PathVariable String id,
       @AuthenticationPrincipal Jwt jwt) {
     
     log.info("Solicitud de eliminación del usuario ID: {} por admin: {}", 

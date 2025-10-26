@@ -1,7 +1,6 @@
 package com.turnapp.microservices.usuarios_microservices.usuario.model;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,11 +18,11 @@ import lombok.Data;
 public class Usuario {
 
     @Id
-    @Column(name = "id", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "CHAR(36)")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
-    @Column(name = "keycloak_id", unique = true, nullable = false, length = 36)
+    @Column(name = "keycloak_id", unique = true, nullable = false, length = 36, columnDefinition = "VARCHAR(36)")
     private String keycloakId;
 
     @Column(name = "codigo_empleado", unique = true, nullable = false, length = 20)
