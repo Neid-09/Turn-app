@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
  * @author TurnApp Team
  */
 @FeignClient(
-    name = "usuarios-microservice",  // Nombre del servicio en Eureka
-    path = "/usuarios"               // Path base del API de usuarios
+    name = "usuarios-microservices",  // Nombre del servicio en Eureka (con 's' al final)
+    path = "/usuarios"                // Path base del API de usuarios
 )
 public interface UsuarioClient {
     

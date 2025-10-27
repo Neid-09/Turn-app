@@ -3,12 +3,13 @@ package com.turnapp.microservice.turnos_microservice.integration.usuario.service
 import com.turnapp.microservice.turnos_microservice.integration.usuario.client.UsuarioBasicoResponse;
 import com.turnapp.microservice.turnos_microservice.integration.usuario.client.UsuarioClient;
 import com.turnapp.microservice.turnos_microservice.integration.usuario.service.IUsuarioValidationService;
+import com.turnapp.microservice.turnos_microservice.shared.exception.BusinessLogicException;
 import com.turnapp.microservice.turnos_microservice.shared.exception.ResourceNotFoundException;
 
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j2;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,15 +28,26 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class UsuarioValidationServiceImpl implements IUsuarioValidationService {
-    
-    private static final Logger log = LoggerFactory.getLogger(UsuarioValidationServiceImpl.class);
-    
+        
     private final UsuarioClient usuarioClient;
     
     @Override
     public boolean existeUsuario(String keycloakId) {
         log.debug("Validando existencia de usuario con Keycloak ID: {}", keycloakId);
+        
+        // Validación básica de formato antes de hacer la llamada
+        if (keycloakId == null || keycloakId.trim().isEmpty()) {
+            log.error("Keycloak ID nulo o vacío");
+            return false;
+        }
+        
+        // Validación de formato UUID (Keycloak IDs son UUIDs)
+        if (!isValidUUID(keycloakId)) {
+            log.warn("Keycloak ID con formato inválido (no es UUID): {}", keycloakId);
+            return false;
+        }
         
         try {
             UsuarioBasicoResponse usuario = usuarioClient.obtenerUsuarioPorKeycloakId(keycloakId);
@@ -49,22 +61,33 @@ public class UsuarioValidationServiceImpl implements IUsuarioValidationService {
             return false;
             
         } catch (FeignException e) {
-            // Error de comunicación con el microservicio
+            // Error de comunicación con el microservicio - FALLAR RÁPIDO
             log.error("Error al comunicarse con microservicio de usuarios. Status: {} - Mensaje: {}", 
                      e.status(), e.getMessage());
             
-            // ESTRATEGIA 1 (Actual): Modo degradado - Permitir la operación con advertencia
-            log.warn("MODO DEGRADADO: Permitiendo operación sin validación de usuario debido a error de comunicación");
-            return true;
-            
-            // ESTRATEGIA 2 (Alternativa - Más estricta): Fallar rápido
-            // throw new BusinessLogicException("No se pudo validar el usuario. Servicio de usuarios no disponible.");
+            // Lanzar excepción en lugar de permitir la operación
+            throw new BusinessLogicException(
+                "No se pudo validar el usuario. El servicio de usuarios no está disponible en este momento. " +
+                "Por favor, intente nuevamente más tarde."
+            );
         }
     }
     
     @Override
     public boolean existeYEstaActivo(String keycloakId) {
         log.debug("Validando que usuario {} exista y esté activo", keycloakId);
+        
+        // Validación básica de formato
+        if (keycloakId == null || keycloakId.trim().isEmpty()) {
+            log.error("Keycloak ID nulo o vacío");
+            return false;
+        }
+        
+        // Validación de formato UUID
+        if (!isValidUUID(keycloakId)) {
+            log.warn("Keycloak ID con formato inválido (no es UUID): {}", keycloakId);
+            return false;
+        }
         
         try {
             UsuarioBasicoResponse usuario = usuarioClient.obtenerUsuarioPorKeycloakId(keycloakId);
@@ -85,15 +108,29 @@ public class UsuarioValidationServiceImpl implements IUsuarioValidationService {
             log.error("Error al validar usuario activo. Status: {} - Mensaje: {}", 
                      e.status(), e.getMessage());
             
-            // Modo degradado: asumir que está activo si no se puede verificar
-            log.warn("MODO DEGRADADO: Asumiendo usuario activo debido a error de comunicación");
-            return true;
+            // Lanzar excepción en lugar de asumir que está activo
+            throw new BusinessLogicException(
+                "No se pudo validar el estado del usuario. El servicio de usuarios no está disponible en este momento. " +
+                "Por favor, intente nuevamente más tarde."
+            );
         }
     }
     
     @Override
     public boolean tieneRolApp(String keycloakId, String rolApp) {
         log.debug("Validando que usuario {} tenga rol de aplicación: {}", keycloakId, rolApp);
+        
+        // Validación básica de formato
+        if (keycloakId == null || keycloakId.trim().isEmpty()) {
+            log.error("Keycloak ID nulo o vacío");
+            return false;
+        }
+        
+        // Validación de formato UUID
+        if (!isValidUUID(keycloakId)) {
+            log.warn("Keycloak ID con formato inválido (no es UUID): {}", keycloakId);
+            return false;
+        }
         
         try {
             UsuarioBasicoResponse usuario = usuarioClient.obtenerUsuarioPorKeycloakId(keycloakId);
@@ -114,9 +151,11 @@ public class UsuarioValidationServiceImpl implements IUsuarioValidationService {
             log.error("Error al validar rol del usuario. Status: {} - Mensaje: {}", 
                      e.status(), e.getMessage());
             
-            // Modo degradado: asumir que tiene el rol si no se puede verificar
-            log.warn("MODO DEGRADADO: Asumiendo que usuario tiene rol requerido debido a error de comunicación");
-            return true;
+            // Lanzar excepción en lugar de asumir que tiene el rol
+            throw new BusinessLogicException(
+                "No se pudo validar el rol del usuario. El servicio de usuarios no está disponible en este momento. " +
+                "Por favor, intente nuevamente más tarde."
+            );
         }
     }
     
@@ -143,5 +182,23 @@ public class UsuarioValidationServiceImpl implements IUsuarioValidationService {
                     "No se pudo obtener información del usuario. Servicio no disponible."
             );
         }
+    }
+    
+    /**
+     * Valida si un string tiene formato de UUID válido.
+     * Los Keycloak IDs siempre son UUIDs en el formato: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+     * 
+     * @param uuid String a validar
+     * @return true si tiene formato UUID válido
+     */
+    private boolean isValidUUID(String uuid) {
+        if (uuid == null) {
+            return false;
+        }
+        
+        // Regex para validar formato UUID
+        String uuidRegex = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+        
+        return uuid.matches(uuidRegex);
     }
 }
