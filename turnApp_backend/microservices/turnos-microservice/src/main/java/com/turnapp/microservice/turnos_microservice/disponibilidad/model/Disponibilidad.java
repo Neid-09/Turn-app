@@ -1,4 +1,4 @@
-package com.turnapp.microservice.turnos_microservice.model.entity;
+package com.turnapp.microservice.turnos_microservice.disponibilidad.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

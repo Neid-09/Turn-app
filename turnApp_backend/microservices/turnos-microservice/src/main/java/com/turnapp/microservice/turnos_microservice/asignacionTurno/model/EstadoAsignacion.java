@@ -1,4 +1,4 @@
-package com.turnapp.microservice.turnos_microservice.model.enums;
+package com.turnapp.microservice.turnos_microservice.asignacionTurno.model;
 
 /**
  * Define el ciclo de vida de un turno que ha sido asignado

@@ -1,4 +1,4 @@
-package com.turnapp.microservice.turnos_microservice.model.enums;
+package com.turnapp.microservice.turnos_microservice.reemplazoTurno.model;
 
 /**
  * Define el estado de una solicitud de reemplazo.

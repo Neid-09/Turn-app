@@ -1,4 +1,4 @@
-package com.turnapp.microservice.turnos_microservice.model.entity;
+package com.turnapp.microservice.turnos_microservice.asignacionTurno.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.turnapp.microservice.turnos_microservice.model.enums.EstadoAsignacion;
+import com.turnapp.microservice.turnos_microservice.descanso.model.Descanso;
+import com.turnapp.microservice.turnos_microservice.reemplazoTurno.model.ReemplazoTurno;
+import com.turnapp.microservice.turnos_microservice.turno.model.Turno;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

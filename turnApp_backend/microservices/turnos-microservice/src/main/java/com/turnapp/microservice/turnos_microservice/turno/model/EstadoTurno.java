@@ -1,4 +1,4 @@
-package com.turnapp.microservice.turnos_microservice.model.enums;
+package com.turnapp.microservice.turnos_microservice.turno.model;
 
 /**
  * Define si una plantilla de Turno está activa para ser asignada
