@@ -8,7 +8,7 @@ export default function EmployeeDashboard() {
       {/* --- Cabecera --- */}
       <header className="mb-4">
         <h1 className="text-2xl font-bold text-black">Panel empleado</h1>
-        <p className="text-lg text-gray-600">¡Hola, Juan Pérez!</p>
+        <p className="text-lg text-gray-600">¡Hola, Daniel Andres!</p>
         <span className="text-sm text-gray-400">Empleado(a)</span>
       </header>
 

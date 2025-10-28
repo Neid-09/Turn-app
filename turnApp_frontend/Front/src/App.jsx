@@ -27,6 +27,11 @@ function App() {
         <Route index element={<AdminDashboard />} />
         {/* 'index' hace que /admin sea la ruta por defecto */}
         {/* Futuras rutas de admin como /admin/horarios, /admin/empleados irían aquí */}
+
+
+
+
+        
       </Route>
     </Routes>
   );
