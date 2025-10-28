@@ -11,11 +11,6 @@ import ProfileScreen from './components/ProfileScreen'; // <--- Importa el nuevo
 import AdminLayout from './components/AdminLayout';       // <--- Importa esto
 import AdminDashboard from './components/AdminDashboard'; // <--- Importa esto
 
-
-
-
-
-
 function App() {
   return (
     <Routes>
@@ -27,6 +22,9 @@ function App() {
         <Route path="/" element={<EmployeeDashboard />} />
         {/* Futuras rutas de empleado */}
       </Route>
+      
+      {/* Nueva ruta para el perfil */}
+        <Route path="/perfil" element={<ProfileScreen />} /> {/* <--- RUTA DEL PERFIL */}
 
       {/* Rutas para el administrador (NUEVAS) */}
       <Route path="/admin" element={<AdminLayout />}>
