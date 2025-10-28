@@ -5,11 +5,11 @@ import LoginScreen from './components/LoginScreen';
 // Rutas de Empleado
 import EmployeeLayout from './components/EmployeeLayout';
 import EmployeeDashboard from './components/EmployeeDashboard';
-import ProfileScreen from './components/ProfileScreen'; // <--- Importa el nuevo componente
+import ProfileScreen from './components/ProfileScreen'; 
 
 // Rutas de Admin (NUEVAS)
-import AdminLayout from './components/AdminLayout';       // <--- Importa esto
-import AdminDashboard from './components/AdminDashboard'; // <--- Importa esto
+import AdminLayout from './components/AdminLayout';
+import AdminDashboard from './components/AdminDashboard'; 
 
 function App() {
   return (
@@ -28,14 +28,9 @@ function App() {
 
       {/* Rutas para el administrador (NUEVAS) */}
       <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
+       
         {/* 'index' hace que /admin sea la ruta por defecto */}
         {/* Futuras rutas de admin como /admin/horarios, /admin/empleados irían aquí */}
-
-
-
-
-
       </Route>
     </Routes>
   );

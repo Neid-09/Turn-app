@@ -9,10 +9,10 @@ const ProfileScreen = () => {
     nombreUsuario: 'Nombre usuario',
     cargoRol: 'CARGO/ROL',
     estado: 'ACTIVO',
-    nombreCompleto: 'Juan Pérez García',
-    correoElectronico: 'juan.perez@empresa.com',
-    telefono: '555-123-4567',
-    direccion: 'Calle Falsa 123, Ciudad',
+    nombreCompleto: '',
+    correoElectronico: '',
+    telefono: '',
+    direccion: '',
   };
 
   const handleEdit = () => {

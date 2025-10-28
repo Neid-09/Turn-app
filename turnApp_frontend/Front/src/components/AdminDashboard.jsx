@@ -7,9 +7,6 @@ import {
   FiBell
 } from 'react-icons/fi';
 
-// --- Sub-componentes para el dashboard ---
-
-// Tarjeta de Estadística (4 superiores)
 function StatCard({ title, value, icon: Icon }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-4 flex items-center justify-between">
