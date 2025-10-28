@@ -3,12 +3,6 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import BottomNav from './BottomNav';
 
-
-
-
-
-
-
 export default function EmployeeLayout() {
   return (
     <div className="min-h-screen bg-[#f7f8fa] font-sans">
