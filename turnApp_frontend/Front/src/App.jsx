@@ -5,10 +5,16 @@ import LoginScreen from './components/LoginScreen';
 // Rutas de Empleado
 import EmployeeLayout from './components/EmployeeLayout';
 import EmployeeDashboard from './components/EmployeeDashboard';
+import ProfileScreen from './components/ProfileScreen'; // <--- Importa el nuevo componente
 
 // Rutas de Admin (NUEVAS)
 import AdminLayout from './components/AdminLayout';       // <--- Importa esto
 import AdminDashboard from './components/AdminDashboard'; // <--- Importa esto
+
+
+
+
+
 
 function App() {
   return (
@@ -31,7 +37,7 @@ function App() {
 
 
 
-        
+
       </Route>
     </Routes>
   );
