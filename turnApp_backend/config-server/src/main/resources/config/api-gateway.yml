@@ -14,25 +14,25 @@ spring:
             client:
                 provider: 
                     keycloak:
-                        issuer-uri: http://localhost:9090/realms/myturnapp-microservices-realm
+                        issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:9090}/realms/myturnapp-microservices-realm
                 registration:
                     spring-cloud-gateway-client:
                         client-id: spring-cloud-gateway-client
                         client-secret: TY9ZR7OLobEUB2Pny7NWSxZdVHUptt3J 
                         provider: keycloak
                         authorization-grant-type: authorization_code
-                        redirect-uri: http://localhost:8080/login/oauth2/code/spring-cloud-gateway-client
+                        redirect-uri: http://${INSTANCE_HOSTNAME:localhost}:${INSTANCE_PORT:8080}/login/oauth2/code/spring-cloud-gateway-client
                         scope:
                             - openid
                             - profile
                             - email
             resourceserver:
                 jwt:
-                    issuer-uri: http://localhost:9090/realms/myturnapp-microservices-realm
+                    issuer-uri: http://${KEYCLOAK_HOST:localhost}:${KEYCLOAK_PORT:9090}/realms/myturnapp-microservices-realm
 
 eureka:
     instance:
-        hostname: 127.0.0.1
+        hostname: ${INSTANCE_HOSTNAME:localhost}
         instance-id: ${spring.application.name}:${random.uuid}
         prefer-ip-address: true
     client:

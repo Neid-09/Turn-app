@@ -1,0 +1,32 @@
+# Directorios de Maven
+target/
+!target/*.jar
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentación
+*.md
+docs/
+
+# Logs
+*.log
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
+*~
