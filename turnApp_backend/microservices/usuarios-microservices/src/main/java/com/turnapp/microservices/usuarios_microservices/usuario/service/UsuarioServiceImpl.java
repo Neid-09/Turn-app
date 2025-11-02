@@ -55,7 +55,18 @@ public class UsuarioServiceImpl implements IUsuarioService {
   public UsuarioResponse registrarUsuario(RegistroUsuarioReq request) {
     log.info("Registrando nuevo usuario con email: {}", request.email());
 
-    // Verificar si ya existe un usuario con el mismo email o código de empleado
+    // Verificar si ya existe un usuario con el mismo username o email
+    if (usuarioRepository.existsByUsername(request.username())) {
+      throw new UsuarioDuplicadoException(
+          "Ya existe un usuario con el username: " + request.username());
+    }
+
+    if (usuarioRepository.existsByEmail(request.email())) {
+      throw new UsuarioDuplicadoException(
+          "Ya existe un usuario con el email: " + request.email());
+    }
+
+    // Verificar si ya existe un usuario con el mismo código de empleado o número de identificación
     if (usuarioRepository.existsByCodigoEmpleado(request.codigoEmpleado())) {
       throw new UsuarioDuplicadoException(
           "Ya existe un usuario con el código de empleado: " + request.codigoEmpleado());
@@ -101,6 +112,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
       // --- 3. Crear y guardar los datos laborales en nuestra BD ---
       Usuario nuevoUsuario = new Usuario();
       nuevoUsuario.setKeycloakId(keycloakId);
+      nuevoUsuario.setUsername(request.username());
+      nuevoUsuario.setEmail(request.email());
       nuevoUsuario.setCodigoEmpleado(request.codigoEmpleado());
       nuevoUsuario.setCargo(request.cargo());
       nuevoUsuario.setFechaContratacion(request.fechaContratacion());
@@ -558,7 +571,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
     // Objeto para el usuario
     UserRepresentation user = new UserRepresentation();
-    user.setUsername(request.email()); // Usamos el email como username
+    user.setUsername(request.username()); // Usamos el username del request
     user.setEmail(request.email());
     user.setFirstName(request.firstName());
     user.setLastName(request.lastName());

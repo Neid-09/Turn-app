@@ -15,6 +15,11 @@ import lombok.Builder;
 @Builder
 public record RegistroUsuarioReq(
     /* Datos básicos para Keycloak */
+    @NotBlank(message = "El username es obligatorio")
+    @Size(min = 3, max = 50, message = "El username debe tener entre 3 y 50 caracteres")
+    @Pattern(regexp = "^[a-zA-Z0-9._-]+$", message = "El username solo puede contener letras, números, puntos, guiones y guiones bajos")
+    String username,
+
     @NotBlank(message = "El email es obligatorio")
     @Email(message = "El email debe tener un formato válido")
     String email,

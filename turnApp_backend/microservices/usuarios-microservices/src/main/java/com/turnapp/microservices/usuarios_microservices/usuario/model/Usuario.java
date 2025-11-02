@@ -25,6 +25,12 @@ public class Usuario {
     @Column(name = "keycloak_id", unique = true, nullable = false, length = 36, columnDefinition = "VARCHAR(36)")
     private String keycloakId;
 
+    @Column(name = "username", unique = true, nullable = false, length = 50)
+    private String username;
+
+    @Column(name = "email", unique = true, nullable = false, length = 255)
+    private String email;
+
     @Column(name = "codigo_empleado", unique = true, nullable = false, length = 20)
     private String codigoEmpleado; // ID interno de la empresa
 

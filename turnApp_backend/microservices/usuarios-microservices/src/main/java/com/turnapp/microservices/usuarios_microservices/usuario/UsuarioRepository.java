@@ -56,6 +56,22 @@ public interface UsuarioRepository extends JpaRepository<Usuario, String> {
   boolean existsByNumeroIdentificacion(String numeroIdentificacion);
 
   /**
+   * Verifica si existe un usuario con el username dado.
+   * 
+   * @param username Nombre de usuario
+   * @return true si existe, false en caso contrario
+   */
+  boolean existsByUsername(String username);
+
+  /**
+   * Verifica si existe un usuario con el email dado.
+   * 
+   * @param email Email del usuario
+   * @return true si existe, false en caso contrario
+   */
+  boolean existsByEmail(String email);
+
+  /**
    * Busca usuarios por término de búsqueda en código de empleado, cargo o número de identificación.
    * 
    * @param searchTerm Término de búsqueda
