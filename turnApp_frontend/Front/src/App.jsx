@@ -1,5 +1,7 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import LoginScreen from './components/LoginScreen';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import Horario from './pages/Horario';
 
@@ -8,30 +10,48 @@ import EmployeeLayout from './components/EmployeeLayout';
 import EmployeeDashboard from './components/EmployeeDashboard';
 import ProfileScreen from './components/ProfileScreen'; 
 
-// Rutas de Admin (NUEVAS)
+// Rutas de Admin
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './components/AdminDashboard'; 
 
 function App() {
   return (
-    <Routes>
-      {/* Ruta para el Login */}
-      <Route path="/login" element={<LoginScreen />} />
+    <AuthProvider>
+      <Routes>
+        {/* Ruta pública: Login */}
+        <Route path="/login" element={<LoginScreen />} />
 
-      {/* Rutas para el empleado */}
-      <Route element={<EmployeeLayout />}>
-        <Route path="/" element={<EmployeeDashboard />} />
-        <Route path="/horario" element={<Horario />} /> {/* 👈 NUEVA RUTA */}
-      </Route>
-      
-      {/* Nueva ruta para el perfil */}
-        <Route path="/perfil" element={<ProfileScreen />} /> {/* <--- RUTA DEL PERFIL */}
+        {/* Rutas protegidas para empleados */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute requiredRole="employee">
+              <EmployeeLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<EmployeeDashboard />} />
+          <Route path="horario" element={<Horario />} />
+          <Route path="perfil" element={<ProfileScreen />} />
+        </Route>
 
-      {/* Rutas para el administrador */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
-      </Route>
-    </Routes>
+        {/* Rutas protegidas para administradores */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="perfil" element={<ProfileScreen />} />
+        </Route>
+
+        {/* Ruta por defecto: redirigir al login */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
 
