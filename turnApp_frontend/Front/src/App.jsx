@@ -1,18 +1,17 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import LoginScreen from './components/LoginScreen';
-import ProtectedRoute from './components/ProtectedRoute';
-
-import Horario from './pages/Horario';
+import { AuthProvider } from './shared/context/AuthContext';
+import LoginScreen from './shared/components/LoginScreen';
+import ProtectedRoute from './shared/components/ProtectedRoute';
+import ProfileScreen from './shared/components/ProfileScreen';
 
 // Rutas de Empleado
-import EmployeeLayout from './components/EmployeeLayout';
-import EmployeeDashboard from './components/EmployeeDashboard';
-import ProfileScreen from './components/ProfileScreen'; 
+import EmployeeLayout from './features/employee/components/EmployeeLayout';
+import EmployeeDashboard from './features/employee/components/EmployeeDashboard';
+import Horario from './features/employee/pages/Horario';
 
 // Rutas de Admin
-import AdminLayout from './components/AdminLayout';
-import AdminDashboard from './components/AdminDashboard'; 
+import AdminLayout from './features/admin/components/AdminLayout';
+import AdminDashboard from './features/admin/components/AdminDashboard'; 
 
 function App() {
   return (

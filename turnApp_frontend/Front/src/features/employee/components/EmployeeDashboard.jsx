@@ -1,5 +1,3 @@
-// src/components/EmployeeDashboard.jsx
-import React from 'react';
 import { FiClock, FiSettings, FiFileText } from 'react-icons/fi';
 
 export default function EmployeeDashboard() {

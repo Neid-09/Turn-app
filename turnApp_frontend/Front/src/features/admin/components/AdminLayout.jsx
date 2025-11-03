@@ -1,7 +1,5 @@
-// src/components/AdminLayout.jsx
-import React from 'react';
 import { Outlet } from 'react-router-dom';
-import AdminBottomNav from './AdminBottomNav'; // <--- Usará la nueva barra de admin
+import AdminBottomNav from './AdminBottomNav';
 
 export default function AdminLayout() {
   return (

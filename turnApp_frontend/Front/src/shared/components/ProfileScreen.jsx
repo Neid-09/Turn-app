@@ -1,5 +1,3 @@
-// src/components/ProfileScreen.jsx
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiEdit, FiLogOut } from 'react-icons/fi';

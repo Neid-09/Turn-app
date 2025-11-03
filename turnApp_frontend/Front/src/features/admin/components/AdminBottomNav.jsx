@@ -1,4 +1,3 @@
-// src/components/AdminBottomNav.jsx
 import { NavLink } from 'react-router-dom';
 import {
   FiHome,

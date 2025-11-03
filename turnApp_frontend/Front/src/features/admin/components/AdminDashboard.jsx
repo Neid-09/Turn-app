@@ -1,5 +1,3 @@
-// src/components/AdminDashboard.jsx
-import React from 'react';
 import {
   FiUsers,
   FiCalendar,
