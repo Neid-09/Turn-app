@@ -25,14 +25,14 @@ spring:
       oauth2:
         resourceserver:
           jwt:
-            issuer-uri: http://localhost:9090/realms/myturnapp-microservices-realm
+            issuer-uri: http://${KEYCLOAK_HOST:localhost}:9092/realms/myturnapp-microservices-realm
 
 server:
   port: 0
 
 keycloak:
   admin-client:
-    server-url: http://localhost:9090
+    server-url: http://${KEYCLOAK_HOST:localhost}:9092
     realm: myturnapp-microservices-realm 
     client-id: usuarios-microservices-admin-client
     client-secret: e1iIoneyVYqxNNIx8H4LRZtk8AUNfyhx

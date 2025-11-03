@@ -5,5 +5,5 @@ spring:
         import: "configserver:"
     cloud:
         config:
-            uri: "http://127.0.0.1:8888"
+            uri: http://${CONFIG_SERVER_HOST:localhost}:8888
             fail-fast: true
