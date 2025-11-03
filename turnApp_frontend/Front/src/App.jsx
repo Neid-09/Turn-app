@@ -1,6 +1,7 @@
-// src/App.jsx
 import { Routes, Route } from 'react-router-dom';
 import LoginScreen from './components/LoginScreen';
+
+import Horario from './pages/Horario';
 
 // Rutas de Empleado
 import EmployeeLayout from './components/EmployeeLayout';
@@ -17,20 +18,18 @@ function App() {
       {/* Ruta para el Login */}
       <Route path="/login" element={<LoginScreen />} />
 
-      {/* Rutas para el empleado (con barra de navegación inferior) */}
+      {/* Rutas para el empleado */}
       <Route element={<EmployeeLayout />}>
         <Route path="/" element={<EmployeeDashboard />} />
-        {/* Futuras rutas de empleado */}
+        <Route path="/horario" element={<Horario />} /> {/* 👈 NUEVA RUTA */}
       </Route>
       
       {/* Nueva ruta para el perfil */}
         <Route path="/perfil" element={<ProfileScreen />} /> {/* <--- RUTA DEL PERFIL */}
 
-      {/* Rutas para el administrador (NUEVAS) */}
+      {/* Rutas para el administrador */}
       <Route path="/admin" element={<AdminLayout />}>
-       
-        {/* 'index' hace que /admin sea la ruta por defecto */}
-        {/* Futuras rutas de admin como /admin/horarios, /admin/empleados irían aquí */}
+        <Route index element={<AdminDashboard />} />
       </Route>
     </Routes>
   );
