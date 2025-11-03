@@ -17,6 +17,7 @@ public record UsuarioResponse(
     
     // ID de Keycloak
     String keycloakId,
+    String username,
     
     // Datos de Keycloak
     String email,

@@ -586,6 +586,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
     return UsuarioResponse.builder()
         .id(usuario.getId())
         .keycloakId(usuario.getKeycloakId())
+        .username(keycloakUser.getUsername())
         .email(keycloakUser.getEmail())
         .firstName(keycloakUser.getFirstName())
         .lastName(keycloakUser.getLastName())
