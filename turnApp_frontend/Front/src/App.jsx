@@ -1,14 +1,16 @@
 import { Routes, Route } from 'react-router-dom';
 import LoginScreen from './components/LoginScreen';
 
+import Horario from './pages/Horario';
+
 // Rutas de Empleado
 import EmployeeLayout from './components/EmployeeLayout';
 import EmployeeDashboard from './components/EmployeeDashboard';
-import Horario from './pages/Horario';
+import ProfileScreen from './components/ProfileScreen'; 
 
-// Rutas de Admin
+// Rutas de Admin (NUEVAS)
 import AdminLayout from './components/AdminLayout';
-import AdminDashboard from './components/AdminDashboard';
+import AdminDashboard from './components/AdminDashboard'; 
 
 function App() {
   return (
@@ -21,6 +23,9 @@ function App() {
         <Route path="/" element={<EmployeeDashboard />} />
         <Route path="/horario" element={<Horario />} /> {/* 👈 NUEVA RUTA */}
       </Route>
+      
+      {/* Nueva ruta para el perfil */}
+        <Route path="/perfil" element={<ProfileScreen />} /> {/* <--- RUTA DEL PERFIL */}
 
       {/* Rutas para el administrador */}
       <Route path="/admin" element={<AdminLayout />}>
