@@ -218,7 +218,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
     log.info("Listando todos los usuarios");
     
     return usuarioRepository.findAll().stream()
-        .map(this::mapToUsuarioListResponse)
+        .map(this::mapToUsuarioListResponseSafe)  // Usar versión segura
+        .filter(response -> response != null)     // Filtrar nulos (usuarios sin Keycloak)
         .collect(Collectors.toList());
   }
 
@@ -615,6 +616,34 @@ public class UsuarioServiceImpl implements IUsuarioService {
         .rolApp(usuario.getRolApp())
         .enabled(keycloakUser.isEnabled())
         .build();
+  }
+  
+  /**
+   * Versión segura de mapToUsuarioListResponse que no falla si el usuario no existe en Keycloak.
+   * Retorna null si el usuario no existe en Keycloak (para ser filtrado posteriormente).
+   */
+  private UsuarioListResponse mapToUsuarioListResponseSafe(Usuario usuario) {
+    try {
+      UserRepresentation keycloakUser = obtenerUsuarioKeycloak(usuario.getKeycloakId());
+      
+      return UsuarioListResponse.builder()
+          .id(usuario.getId())
+          .keycloakId(usuario.getKeycloakId())
+          .email(keycloakUser.getEmail())
+          .firstName(keycloakUser.getFirstName())
+          .lastName(keycloakUser.getLastName())
+          .codigoEmpleado(usuario.getCodigoEmpleado())
+          .cargo(usuario.getCargo())
+          .rolApp(usuario.getRolApp())
+          .enabled(keycloakUser.isEnabled())
+          .build();
+          
+    } catch (UsuarioNotFoundException ex) {
+      // Usuario existe en BD pero no en Keycloak - registrar warning y excluir
+      log.warn("Usuario {} (keycloakId: {}) existe en BD pero no en Keycloak - será excluido del listado", 
+               usuario.getId(), usuario.getKeycloakId());
+      return null; // Será filtrado por el stream
+    }
   }
 
   @Override
