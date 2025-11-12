@@ -370,3 +370,129 @@ curl -X DELETE http://localhost:8080/api/disponibilidades/1 \
   {"diaSemana": "MIERCOLES", "horaInicio": "06:00:00", "horaFin": "22:00:00"}
 ]
 ```
+
+---
+
+## 8. Manejo de Errores Cuando el Microservicio de Usuarios No Está Disponible
+
+### 8.1. Problema Identificado
+
+Cuando el microservicio de usuarios no está disponible (caído, timeout, error de red), el endpoint de usuarios disponibles fallaba mostrando un error genérico de tipo 500.
+
+### 8.2. Solución Implementada
+
+Se implementó un manejo robusto de errores que distingue entre:
+
+- **404 Not Found**: Usuario específico no existe (error de negocio)
+- **503 Service Unavailable**: Microservicio caído o no responde (error de infraestructura)
+- **500 Internal Server Error**: Error interno del microservicio
+- **401/403**: Errores de autenticación
+- **-1**: Errores de conexión (timeout, connection refused)
+
+### 8.3. Componentes Creados
+
+#### 8.3.1. Excepción Personalizada
+
+**Archivo**: `MicroserviceUnavailableException.java`
+
+```java
+public class MicroserviceUnavailableException extends RuntimeException {
+    private final String microserviceName;
+    private final String operation;
+    
+    public MicroserviceUnavailableException(
+        String microserviceName, 
+        String operation, 
+        String message, 
+        Throwable cause
+    ) {
+        super(String.format("Error al comunicarse con %s durante %s: %s", 
+                          microserviceName, operation, message), cause);
+        this.microserviceName = microserviceName;
+        this.operation = operation;
+    }
+}
+```
+
+#### 8.3.2. Handler Global
+
+**Archivo**: `GlobalExceptionHandler.java`
+
+Se agregó un nuevo handler que captura `MicroserviceUnavailableException` y retorna:
+
+```json
+{
+  "timestamp": "2025-11-11T15:30:45",
+  "status": 503,
+  "error": "Service Unavailable",
+  "message": "Error al comunicarse con usuarios-microservice durante obtener usuarios...",
+  "path": "/api/disponibilidades/usuarios-disponibles"
+}
+```
+
+#### 8.3.3. Servicio de Validación Mejorado
+
+**Archivo**: `UsuarioValidationServiceImpl.java`
+
+Se agregó el método `determinarMensajeError()` que analiza el código de estado HTTP y retorna mensajes descriptivos:
+
+| Código HTTP | Mensaje al Usuario |
+|-------------|-------------------|
+| -1 | El servicio de usuarios no está disponible. Por favor, intente nuevamente en unos momentos. |
+| 503 | El servicio de usuarios está temporalmente fuera de servicio. Por favor, intente más tarde. |
+| 500-599 | El servicio de usuarios está experimentando problemas técnicos. Por favor, contacte al administrador. |
+| 401/403 | Error de autenticación con el servicio de usuarios. Por favor, contacte al administrador. |
+| Otros | Error al comunicarse con el servicio de usuarios. Por favor, intente nuevamente. |
+
+### 8.4. Ejemplo de Respuesta de Error
+
+#### Cuando el microservicio de usuarios está caído
+
+**Request:**
+
+```http
+GET /api/disponibilidades/usuarios-disponibles?fecha=2025-11-27&horaInicio=08:00&horaFin=16:00
+Authorization: Bearer {token}
+```
+
+**Response (503):**
+
+```json
+{
+  "timestamp": "2025-11-11T15:30:45.123",
+  "status": 503,
+  "error": "Service Unavailable",
+  "message": "Error al comunicarse con usuarios-microservice durante obtener usuarios: El servicio de usuarios no está disponible. Por favor, intente nuevamente en unos momentos.",
+  "path": "/api/disponibilidades/usuarios-disponibles"
+}
+```
+
+### 8.5. Logs Generados
+
+Cuando ocurre un error de microservicio:
+
+```log
+2025-11-11T15:30:45.068-05:00 ERROR [turnos-microservice] 
+c.t.m.t.i.u.s.i.UsuarioValidationServiceImpl : 
+Error al obtener usuarios. Status: -1 - Mensaje: connect timed out
+
+2025-11-11T15:30:45.125-05:00 ERROR [turnos-microservice]
+c.t.m.t.s.e.GlobalExceptionHandler : 
+Microservicio no disponible - usuarios-microservice: Error al comunicarse...
+```
+
+### 8.6. Ventajas de esta Implementación
+
+✅ **Mensajes claros**: El usuario final recibe mensajes descriptivos según el tipo de error  
+✅ **Código HTTP correcto**: Se usa 503 (Service Unavailable) en lugar de 500  
+✅ **Trazabilidad**: Logs detallados para depuración  
+✅ **Separación de responsabilidades**: Errores de negocio vs errores de infraestructura  
+✅ **Mantenibilidad**: Lógica centralizada en el GlobalExceptionHandler  
+✅ **Información contextual**: Se registra qué microservicio falló y qué operación se intentaba realizar
+
+### 8.7. Mejoras Futuras Recomendadas
+
+🔄 **Circuit Breaker**: Implementar Resilience4j para evitar llamadas repetidas a servicios caídos  
+🔄 **Retry Policy**: Reintentar automáticamente en caso de fallos temporales  
+🔄 **Fallback**: Retornar datos en caché cuando el microservicio no esté disponible  
+🔄 **Health Checks**: Monitorear el estado de los microservicios proactivamente

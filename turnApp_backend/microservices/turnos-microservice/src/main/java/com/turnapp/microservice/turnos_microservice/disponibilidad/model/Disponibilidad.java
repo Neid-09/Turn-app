@@ -15,14 +15,24 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 
 /**
- * Modela la disponibilidad *preferencial* de un usuario.
- * Indica qué días y en qué horarios un usuario prefiere o está 
- * contratado para trabajar.
+ * Modela las PREFERENCIAS horarias de un usuario (Sistema Híbrido).
+ * 
+ * IMPORTANTE - CAMBIO DE PARADIGMA:
+ * - Los empleados están DISPONIBLES POR DEFECTO para cualquier turno
+ * - Esta entidad solo se usa para definir PREFERENCIAS o RESTRICCIONES opcionales
+ * - Si un usuario NO tiene registros aquí, puede recibir cualquier turno
+ * - Si un usuario SÍ tiene registros, el sistema emitirá advertencias al asignar fuera del rango
+ * 
+ * Casos de uso:
+ * - Empleado con contrato de medio tiempo (solo mañanas o solo tardes)
+ * - Empleado con preferencia de horarios por estudios
+ * - Empleado con restricciones médicas de horario nocturno
+ * 
+ * @author TurnApp Team
  */
 @Entity
 @Table(name = "disponibilidad")
@@ -42,9 +52,9 @@ public class Disponibilidad {
     private String usuarioId;
 
     /** Día de la semana para esta regla de disponibilidad. */
-    @Enumerated(EnumType.STRING) // Guarda "MONDAY", "TUESDAY", etc.
+    @Enumerated(EnumType.STRING) // Guarda "LUNES", "MARTES", etc.
     @Column(name = "dia_semana", nullable = false)
-    private DayOfWeek diaSemana; // Usamos el Enum nativo de Java
+    private DiaSemana diaSemana;
 
     @Column(name = "hora_inicio", nullable = false)
     private LocalTime horaInicio;

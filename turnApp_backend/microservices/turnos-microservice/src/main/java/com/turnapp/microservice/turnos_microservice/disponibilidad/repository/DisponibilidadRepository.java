@@ -4,8 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.turnapp.microservice.turnos_microservice.disponibilidad.model.Disponibilidad;
+import com.turnapp.microservice.turnos_microservice.disponibilidad.model.DiaSemana;
 
-import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,10 +24,10 @@ public interface DisponibilidadRepository extends JpaRepository<Disponibilidad, 
      * Útil para validar si una asignación coincide con la disponibilidad preferencial.
      * 
      * @param usuarioId ID del usuario
-     * @param diaSemana Día de la semana (enum DayOfWeek)
+     * @param diaSemana Día de la semana (enum DiaSemana)
      * @return Optional con la disponibilidad si existe
      */
-    Optional<Disponibilidad> findByUsuarioIdAndDiaSemana(String usuarioId, DayOfWeek diaSemana);
+    Optional<Disponibilidad> findByUsuarioIdAndDiaSemana(String usuarioId, DiaSemana diaSemana);
 
     /**
      * Busca todas las reglas de disponibilidad de un usuario.
@@ -55,7 +55,7 @@ public interface DisponibilidadRepository extends JpaRepository<Disponibilidad, 
      * @param diaSemana Día de la semana
      * @return Lista de disponibilidades para el día especificado
      */
-    List<Disponibilidad> findByDiaSemana(DayOfWeek diaSemana);
+    List<Disponibilidad> findByDiaSemana(DiaSemana diaSemana);
     
     /**
      * Verifica si existe una regla de disponibilidad para un usuario en un día específico.
@@ -64,7 +64,17 @@ public interface DisponibilidadRepository extends JpaRepository<Disponibilidad, 
      * @param diaSemana Día de la semana
      * @return true si existe, false en caso contrario
      */
-    boolean existsByUsuarioIdAndDiaSemana(String usuarioId, DayOfWeek diaSemana);
+    boolean existsByUsuarioIdAndDiaSemana(String usuarioId, DiaSemana diaSemana);
+    
+    /**
+     * Busca disponibilidades para múltiples días de la semana y un estado específico.
+     * Útil para obtener disponibilidades en un período con múltiples días.
+     * 
+     * @param diasSemana Lista de días de la semana
+     * @param activo Estado de activación de las reglas
+     * @return Lista de disponibilidades que coinciden con los criterios
+     */
+    List<Disponibilidad> findByDiaSemanaInAndActivo(List<DiaSemana> diasSemana, boolean activo);
     
     /**
      * Elimina todas las reglas de disponibilidad de un usuario.

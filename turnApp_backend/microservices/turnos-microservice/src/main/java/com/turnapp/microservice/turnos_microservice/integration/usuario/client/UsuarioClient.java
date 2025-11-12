@@ -4,6 +4,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.List;
+
 /**
  * Cliente Feign para comunicación con el microservicio de usuarios.
  * Permite validar la existencia de usuarios antes de asignar turnos.
@@ -31,4 +33,15 @@ public interface UsuarioClient {
      */
     @GetMapping("/keycloak/{keycloakId}")
     UsuarioBasicoResponse obtenerUsuarioPorKeycloakId(@PathVariable("keycloakId") String keycloakId);
+    
+    /**
+     * Obtiene la lista completa de todos los usuarios registrados.
+     * Útil para listar usuarios disponibles aplicando lógica híbrida.
+     * 
+     * Endpoint: GET /usuarios/todos
+     * 
+     * @return Lista de todos los usuarios en el sistema
+     */
+    @GetMapping("/todos")
+    List<UsuarioBasicoResponse> obtenerTodosLosUsuarios();
 }

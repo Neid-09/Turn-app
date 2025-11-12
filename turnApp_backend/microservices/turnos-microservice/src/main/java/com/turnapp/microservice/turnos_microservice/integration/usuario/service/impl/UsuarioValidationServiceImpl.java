@@ -3,7 +3,7 @@ package com.turnapp.microservice.turnos_microservice.integration.usuario.service
 import com.turnapp.microservice.turnos_microservice.integration.usuario.client.UsuarioBasicoResponse;
 import com.turnapp.microservice.turnos_microservice.integration.usuario.client.UsuarioClient;
 import com.turnapp.microservice.turnos_microservice.integration.usuario.service.IUsuarioValidationService;
-import com.turnapp.microservice.turnos_microservice.shared.exception.BusinessLogicException;
+import com.turnapp.microservice.turnos_microservice.shared.exception.MicroserviceUnavailableException;
 import com.turnapp.microservice.turnos_microservice.shared.exception.ResourceNotFoundException;
 
 import feign.FeignException;
@@ -20,9 +20,10 @@ import org.springframework.stereotype.Service;
  * ya que es el mismo en Keycloak y en la BD del microservicio de usuarios.
  * 
  * Estrategias implementadas:
- * - Manejo de excepciones de Feign
+ * - Manejo robusto de excepciones de Feign
  * - Logging detallado de todas las llamadas
- * - Modo degradado configurable para tolerancia a fallos
+ * - Distinción entre errores de negocio y fallos de infraestructura
+ * - Validación de formato UUID antes de llamadas HTTP
  * 
  * @author TurnApp Team
  */
@@ -61,14 +62,18 @@ public class UsuarioValidationServiceImpl implements IUsuarioValidationService {
             return false;
             
         } catch (FeignException e) {
-            // Error de comunicación con el microservicio - FALLAR RÁPIDO
+            // Error de comunicación con el microservicio
             log.error("Error al comunicarse con microservicio de usuarios. Status: {} - Mensaje: {}", 
                      e.status(), e.getMessage());
             
-            // Lanzar excepción en lugar de permitir la operación
-            throw new BusinessLogicException(
-                "No se pudo validar el usuario. El servicio de usuarios no está disponible en este momento. " +
-                "Por favor, intente nuevamente más tarde."
+            // Determinar el tipo de error
+            String errorMessage = determinarMensajeError(e);
+            
+            throw new MicroserviceUnavailableException(
+                "usuarios-microservice",
+                "validar existencia de usuario",
+                errorMessage,
+                e
             );
         }
     }
@@ -101,17 +106,20 @@ public class UsuarioValidationServiceImpl implements IUsuarioValidationService {
             return existeYActivo;
             
         } catch (FeignException.NotFound e) {
-            log.warn("Usuario no encontrado: {}", keycloakId);
+            log.warn("Usuario no encontrado al validar estado activo: {}", keycloakId);
             return false;
             
         } catch (FeignException e) {
             log.error("Error al validar usuario activo. Status: {} - Mensaje: {}", 
                      e.status(), e.getMessage());
             
-            // Lanzar excepción en lugar de asumir que está activo
-            throw new BusinessLogicException(
-                "No se pudo validar el estado del usuario. El servicio de usuarios no está disponible en este momento. " +
-                "Por favor, intente nuevamente más tarde."
+            String errorMessage = determinarMensajeError(e);
+            
+            throw new MicroserviceUnavailableException(
+                "usuarios-microservice",
+                "validar estado activo de usuario",
+                errorMessage,
+                e
             );
         }
     }
@@ -151,10 +159,13 @@ public class UsuarioValidationServiceImpl implements IUsuarioValidationService {
             log.error("Error al validar rol del usuario. Status: {} - Mensaje: {}", 
                      e.status(), e.getMessage());
             
-            // Lanzar excepción en lugar de asumir que tiene el rol
-            throw new BusinessLogicException(
-                "No se pudo validar el rol del usuario. El servicio de usuarios no está disponible en este momento. " +
-                "Por favor, intente nuevamente más tarde."
+            String errorMessage = determinarMensajeError(e);
+            
+            throw new MicroserviceUnavailableException(
+                "usuarios-microservice",
+                "validar rol de usuario",
+                errorMessage,
+                e
             );
         }
     }
@@ -178,9 +189,38 @@ public class UsuarioValidationServiceImpl implements IUsuarioValidationService {
         } catch (FeignException e) {
             log.error("Error al obtener usuario. Status: {} - Mensaje: {}", 
                      e.status(), e.getMessage());
-            throw new ResourceNotFoundException(
-                    "No se pudo obtener información del usuario. Servicio no disponible."
+            
+            String errorMessage = determinarMensajeError(e);
+            
+            throw new MicroserviceUnavailableException(
+                "usuarios-microservice",
+                "obtener información de usuario",
+                errorMessage,
+                e
             );
+        }
+    }
+    
+    /**
+     * Determina un mensaje de error descriptivo basado en la excepción de Feign.
+     * 
+     * @param e Excepción de Feign capturada
+     * @return Mensaje de error descriptivo para el usuario
+     */
+    private String determinarMensajeError(FeignException e) {
+        int status = e.status();
+        
+        if (status == -1) {
+            // Error de conexión (timeout, connection refused, etc.)
+            return "El servicio de usuarios no está disponible. Por favor, intente nuevamente en unos momentos.";
+        } else if (status == 503) {
+            return "El servicio de usuarios está temporalmente fuera de servicio. Por favor, intente más tarde.";
+        } else if (status >= 500) {
+            return "El servicio de usuarios está experimentando problemas técnicos. Por favor, contacte al administrador.";
+        } else if (status == 401 || status == 403) {
+            return "Error de autenticación con el servicio de usuarios. Por favor, contacte al administrador.";
+        } else {
+            return "Error al comunicarse con el servicio de usuarios. Por favor, intente nuevamente.";
         }
     }
     

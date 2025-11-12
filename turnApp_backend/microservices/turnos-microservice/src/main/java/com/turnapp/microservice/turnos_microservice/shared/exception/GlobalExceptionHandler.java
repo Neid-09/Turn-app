@@ -166,6 +166,33 @@ public class GlobalExceptionHandler {
     }
     
     /**
+     * Maneja excepciones de microservicios no disponibles.
+     * Esto ocurre cuando un microservicio externo no responde o está caído.
+     * 
+     * @param ex Excepción de microservicio no disponible
+     * @param request Petición HTTP
+     * @return ResponseEntity con código 503 (Service Unavailable) y detalles del error
+     */
+    @ExceptionHandler(MicroserviceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleMicroserviceUnavailableException(
+            MicroserviceUnavailableException ex,
+            HttpServletRequest request) {
+        
+        log.error("Microservicio no disponible - {}: {}", 
+                 ex.getMicroserviceName(), ex.getMessage(), ex);
+        
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.SERVICE_UNAVAILABLE.value())
+                .error(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+    
+    /**
      * Maneja excepciones no controladas (catch-all).
      * 
      * @param ex Excepción genérica

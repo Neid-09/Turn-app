@@ -2,8 +2,11 @@ package com.turnapp.microservice.turnos_microservice.disponibilidad.service;
 
 import com.turnapp.microservice.turnos_microservice.disponibilidad.dto.DisponibilidadRequest;
 import com.turnapp.microservice.turnos_microservice.disponibilidad.dto.DisponibilidadResponse;
+import com.turnapp.microservice.turnos_microservice.disponibilidad.dto.UsuarioDisponibleResponse;
+import com.turnapp.microservice.turnos_microservice.disponibilidad.model.DiaSemana;
 
-import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -67,14 +70,57 @@ public interface IDisponibilidadService {
     void eliminarDisponibilidad(Long id);
     
     /**
-     * Valida si un horario está dentro de la disponibilidad de un usuario para un día específico.
+     * Valida si un horario está dentro de la preferencia horaria de un usuario para un día específico.
+     * 
+     * SISTEMA HÍBRIDO:
+     * - Si el usuario NO tiene disponibilidad configurada → Retorna TRUE (disponible por defecto)
+     * - Si el usuario tiene disponibilidad configurada → Valida que el turno esté dentro del rango
+     * 
+     * Este método NO bloquea asignaciones, solo informa si coincide con las preferencias.
+     * Es responsabilidad del servicio de asignaciones decidir si emite advertencia o bloquea.
      * 
      * @param usuarioId ID del usuario
      * @param diaSemana Día de la semana
      * @param horaInicio Hora de inicio del turno a validar
      * @param horaFin Hora de fin del turno a validar
-     * @return true si está dentro de la disponibilidad, false en caso contrario
+     * @return true si está dentro de la preferencia (o no tiene restricciones), false si está fuera
      */
-    boolean validarDisponibilidad(String usuarioId, DayOfWeek diaSemana, 
-                                   java.time.LocalTime horaInicio, java.time.LocalTime horaFin);
+    boolean validarDisponibilidad(String usuarioId, DiaSemana diaSemana, 
+                                   LocalTime horaInicio, LocalTime horaFin);
+    
+    /**
+     * Obtiene todos los usuarios que tienen disponibilidad configurada en un rango de fechas.
+     * Útil para calcular empleados disponibles en el microservicio de Horarios.
+     * 
+     * @param fechaInicio Fecha de inicio del período
+     * @param fechaFin Fecha de fin del período
+     * @return Lista de DTOs con las disponibilidades en el rango
+     */
+    List<DisponibilidadResponse> obtenerDisponibilidadesPorPeriodo(
+            LocalDate fechaInicio, 
+            LocalDate fechaFin
+    );
+    
+    /**
+     * Obtiene la lista de usuarios disponibles para un día y horario específico.
+     * 
+     * LÓGICA HÍBRIDA:
+     * - Obtiene TODOS los usuarios del microservicio de usuarios
+     * - Por defecto, todos están disponibles
+     * - Si tienen preferencias configuradas, valida si el horario cumple con ellas
+     * - Excluye usuarios que ya tienen asignaciones activas en la fecha especificada
+     * - Retorna información sobre si cumplen o no sus preferencias
+     * 
+     * @param fecha Fecha específica para verificar asignaciones
+     * @param diaSemana Día de la semana a consultar
+     * @param horaInicio Hora de inicio del turno
+     * @param horaFin Hora de fin del turno
+     * @return Lista de usuarios con información de su disponibilidad
+     */
+    List<UsuarioDisponibleResponse> obtenerUsuariosDisponibles(
+            LocalDate fecha,
+            DiaSemana diaSemana,
+            LocalTime horaInicio,
+            LocalTime horaFin
+    );
 }
