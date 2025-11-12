@@ -153,7 +153,61 @@ Obtiene todas las asignaciones programadas para una fecha específica.
 
 ---
 
-### 5. Cancelar Asignación
+### 5. Listar Asignaciones por Período
+
+Obtiene todas las asignaciones dentro de un rango de fechas específico. Útil para generar reportes y consolidar horarios.
+
+**URL**: `GET /api/asignaciones/periodo`
+
+**Query Parameters**:
+
+- `fechaInicio` (LocalDate, formato: `YYYY-MM-DD`): Fecha de inicio del período (requerido)
+- `fechaFin` (LocalDate, formato: `YYYY-MM-DD`): Fecha de fin del período (requerido)
+
+**Ejemplo**: `GET /api/asignaciones/periodo?fechaInicio=2025-10-01&fechaFin=2025-10-31`
+
+**Response**: `200 OK`
+
+```json
+[
+  {
+    "id": 1,
+    "usuarioId": "abc-123-def-456",
+    "turnoId": 5,
+    "nombreTurno": "Turno Mañana",
+    "fecha": "2025-10-15",
+    "horaInicio": "08:00:00",
+    "horaFin": "16:00:00",
+    "estado": "COMPLETADO",
+    "observaciones": null,
+    "creadoEn": "2025-10-14T10:00:00",
+    "actualizadoEn": "2025-10-15T16:05:00"
+  },
+  {
+    "id": 2,
+    "usuarioId": "abc-123-def-456",
+    "turnoId": 6,
+    "nombreTurno": "Turno Tarde",
+    "fecha": "2025-10-20",
+    "horaInicio": "14:00:00",
+    "horaFin": "22:00:00",
+    "estado": "ACTIVO",
+    "observaciones": "Turno adicional",
+    "creadoEn": "2025-10-19T09:00:00",
+    "actualizadoEn": "2025-10-19T09:00:00"
+  }
+]
+```
+
+**Notas**:
+
+- Incluye todas las asignaciones entre `fechaInicio` y `fechaFin` (ambos inclusive)
+- Útil para la consolidación de horarios en el microservicio de Horarios
+- Devuelve array vacío si no hay asignaciones en el período
+
+---
+
+### 6. Cancelar Asignación
 
 Cancela una asignación existente (no la elimina, cambia el estado a CANCELADO).
 
@@ -173,7 +227,7 @@ Cancela una asignación existente (no la elimina, cambia el estado a CANCELADO).
 
 ---
 
-### 6. Completar Asignación
+### 7. Completar Asignación
 
 Marca una asignación como completada.
 
@@ -275,6 +329,13 @@ curl -X POST http://localhost:8080/api/asignaciones \
 
 ```bash
 curl -X GET "http://localhost:8080/api/asignaciones/fecha?fecha=2025-10-28" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Consultar Asignaciones por Período
+
+```bash
+curl -X GET "http://localhost:8080/api/asignaciones/periodo?fechaInicio=2025-10-01&fechaFin=2025-10-31" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 

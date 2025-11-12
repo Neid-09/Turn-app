@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -160,6 +161,53 @@ public class GlobalExceptionHandler {
                 .message("Error de validación")
                 .path(request.getRequestURI())
                 .validationErrors(validationErrors)
+                .build();
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+    
+    /**
+     * Maneja errores de conversión de tipos en parámetros de métodos.
+     * Especialmente útil para fechas inválidas u otros tipos de datos mal formateados.
+     * 
+     * @param ex Excepción de tipo incorrecto
+     * @param request Petición HTTP
+     * @return ResponseEntity con código 400 y mensaje de error claro
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(
+            MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request) {
+        
+        String parameterName = ex.getName();
+        String parameterValue = ex.getValue() != null ? ex.getValue().toString() : "null";
+        String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
+        
+        // Mensaje más específico para fechas
+        String message;
+        if (requiredType.equals("LocalDate")) {
+            message = String.format(
+                "El parámetro '%s' tiene un valor inválido: '%s'. " +
+                "Debe ser una fecha válida en formato YYYY-MM-DD (por ejemplo: 2025-11-30). " +
+                "Verifique que el día sea válido para el mes especificado.",
+                parameterName, parameterValue
+            );
+        } else {
+            message = String.format(
+                "El parámetro '%s' tiene un valor inválido: '%s'. Se esperaba un tipo %s",
+                parameterName, parameterValue, requiredType
+            );
+        }
+        
+        log.warn("Error de conversión de tipo para parámetro '{}': valor='{}', tipo esperado='{}'",
+                parameterName, parameterValue, requiredType);
+        
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .message(message)
+                .path(request.getRequestURI())
                 .build();
         
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);

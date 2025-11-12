@@ -109,6 +109,30 @@ public class AsignacionController {
     }
     
     /**
+     * Obtener todas las asignaciones en un rango de fechas (período).
+     * Útil para consolidar horarios en el microservicio de Horarios.
+     * 
+     * @param fechaInicio Fecha de inicio del período (yyyy-MM-dd)
+     * @param fechaFin Fecha de fin del período (yyyy-MM-dd)
+     * @return Lista de asignaciones en el rango especificado
+     */
+    @GetMapping("/periodo")
+    public ResponseEntity<List<AsignacionResponse>> obtenerAsignacionesPorPeriodo(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        
+        log.info("GET /api/asignaciones/periodo?fechaInicio={}&fechaFin={} - Obteniendo asignaciones", 
+                 fechaInicio, fechaFin);
+        
+        List<AsignacionResponse> asignaciones = 
+                asignacionService.obtenerAsignacionesPorPeriodo(fechaInicio, fechaFin);
+        
+        log.info("Se encontraron {} asignaciones entre {} y {}", 
+                 asignaciones.size(), fechaInicio, fechaFin);
+        return ResponseEntity.ok(asignaciones);
+    }
+    
+    /**
      * Cancelar una asignación de turno.
      * No elimina el registro, solo cambia el estado a CANCELADO.
      * 

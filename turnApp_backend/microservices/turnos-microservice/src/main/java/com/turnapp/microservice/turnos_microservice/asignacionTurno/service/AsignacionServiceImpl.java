@@ -5,6 +5,7 @@ import com.turnapp.microservice.turnos_microservice.asignacionTurno.dto.Asignaci
 import com.turnapp.microservice.turnos_microservice.asignacionTurno.model.AsignacionTurno;
 import com.turnapp.microservice.turnos_microservice.asignacionTurno.model.EstadoAsignacion;
 import com.turnapp.microservice.turnos_microservice.asignacionTurno.repository.AsignacionTurnoRepository;
+import com.turnapp.microservice.turnos_microservice.disponibilidad.model.DiaSemana;
 import com.turnapp.microservice.turnos_microservice.disponibilidad.service.IDisponibilidadService;
 import com.turnapp.microservice.turnos_microservice.integration.usuario.service.IUsuarioValidationService;
 import com.turnapp.microservice.turnos_microservice.shared.exception.BusinessLogicException;
@@ -30,6 +31,9 @@ import java.util.stream.Collectors;
  * 
  * @author TurnApp Team
  */
+
+ // TODO: Verificar en el tema del estado de la asignación ya que cuando se CANCELA, no esta claro si dejarla sin que se pueda cambiar o que se pueda reactivar.
+
 @Service
 @RequiredArgsConstructor
 @Log4j2
@@ -109,26 +113,27 @@ public class AsignacionServiceImpl implements IAsignacionService {
 
     log.info("Validación de solapamiento completada exitosamente");
 
-    // === PASO 3: VALIDACIÓN DE DISPONIBILIDAD PREFERENCIAL (OPCIONAL) ===
-    // Esta validación es opcional y puede ser solo una advertencia
+    // === PASO 3: VALIDACIÓN DE DISPONIBILIDAD PREFERENCIAL (ADVERTENCIA) ===
+    // SISTEMA HÍBRIDO: Los empleados están disponibles por defecto.
+    // Si tienen preferencias configuradas, se emite una advertencia si no coinciden,
+    // pero NO se bloquea la asignación.
     try {
-      boolean disponible = disponibilidadService.validarDisponibilidad(
+      boolean dentroDePreferencia = disponibilidadService.validarDisponibilidad(
           request.getUsuarioId(),
-          request.getFecha().getDayOfWeek(),
+          DiaSemana.fromDayOfWeek(request.getFecha().getDayOfWeek()),
           inicioNuevo,
           finNuevo);
 
-      if (!disponible) {
-        log.warn("El turno asignado está fuera de la disponibilidad preferencial del usuario: {}",
-            request.getUsuarioId());
-        // Puedes decidir si esto debe ser un error o solo una advertencia
-        // throw new BusinessLogicException("El turno está fuera de la disponibilidad
-        // preferencial del usuario");
+      if (!dentroDePreferencia) {
+        log.warn("⚠️ ADVERTENCIA: El turno '{}' ({} - {}) está fuera de la preferencia horaria del usuario: {}. " +
+            "La asignación se creará de todos modos.",
+            turno.getNombre(), inicioNuevo, finNuevo, request.getUsuarioId());
+        // NO SE BLOQUEA - Sistema híbrido permite asignación con advertencia
       } else {
-        log.info("El turno coincide con la disponibilidad preferencial del usuario");
+        log.info("✓ El turno coincide con la preferencia horaria del usuario (o no tiene restricciones)");
       }
     } catch (Exception e) {
-      log.debug("No se pudo validar disponibilidad preferencial (puede no estar configurada): {}",
+      log.debug("No se pudo validar preferencia horaria: {}. Asumiendo disponible por defecto.",
           e.getMessage());
     }
 
@@ -249,6 +254,24 @@ public class AsignacionServiceImpl implements IAsignacionService {
         .findByUsuarioIdAndFechaBetween(usuarioId, fechaInicio, fechaFin);
 
     log.info("Se encontraron {} asignaciones", asignaciones.size());
+
+    return asignaciones.stream()
+        .map(this::mapearAAsignacionResponse)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<AsignacionResponse> obtenerAsignacionesPorPeriodo(
+      LocalDate fechaInicio, LocalDate fechaFin) {
+
+    log.info("Buscando todas las asignaciones entre {} y {} para consolidación de horarios",
+        fechaInicio, fechaFin);
+
+    List<AsignacionTurno> asignaciones = asignacionRepository
+        .findByFechaBetween(fechaInicio, fechaFin);
+
+    log.info("Se encontraron {} asignaciones en el período", asignaciones.size());
 
     return asignaciones.stream()
         .map(this::mapearAAsignacionResponse)

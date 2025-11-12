@@ -87,4 +87,17 @@ public interface IAsignacionService {
             LocalDate fechaInicio,
             LocalDate fechaFin
     );
+    
+    /**
+     * Obtiene todas las asignaciones en un rango de fechas.
+     * Útil para consolidar horarios publicados.
+     * 
+     * @param fechaInicio Fecha de inicio del período
+     * @param fechaFin Fecha de fin del período
+     * @return Lista de DTOs con todas las asignaciones en el rango
+     */
+    List<AsignacionResponse> obtenerAsignacionesPorPeriodo(
+            LocalDate fechaInicio,
+            LocalDate fechaFin
+    );
 }
