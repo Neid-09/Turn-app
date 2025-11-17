@@ -1,81 +1,126 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import keycloak, { initOptions } from '../../config/keycloak.config';
+import { usuarioService } from '../../services/usuario.service';
 
 const AuthContext = createContext(null);
-
-// Usuarios base del sistema
-const BASE_USERS = [
-  {
-    id: 1,
-    email: 'admin@turnapp.com',
-    password: 'admin123',
-    role: 'admin',
-    name: 'Administrador',
-    avatar: null
-  },
-  {
-    id: 2,
-    email: 'empleado@turnapp.com',
-    password: 'empleado123',
-    role: 'employee',
-    name: 'Empleado Demo',
-    avatar: null
-  }
-];
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [keycloakReady, setKeycloakReady] = useState(false);
 
-  // Verificar si hay una sesión activa al cargar la app
+  // Inicializar Keycloak al montar el componente
   useEffect(() => {
-    const storedUser = localStorage.getItem('turnapp_user');
-    if (storedUser) {
+    const initKeycloak = async () => {
       try {
-        setUser(JSON.parse(storedUser));
+        const authenticated = await keycloak.init(initOptions);
+        setKeycloakReady(true);
+
+        if (authenticated) {
+          // Si está autenticado, cargar datos del usuario
+          await loadUserProfile();
+        }
       } catch (error) {
-        console.error('Error al cargar usuario:', error);
-        localStorage.removeItem('turnapp_user');
+        console.error('Error al inicializar Keycloak:', error);
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+
+    initKeycloak();
+
+    // Actualizar token automáticamente cada 60 segundos
+    const tokenRefreshInterval = setInterval(() => {
+      keycloak.updateToken(70).catch(() => {
+        console.error('Error al refrescar token');
+      });
+    }, 60000);
+
+    return () => clearInterval(tokenRefreshInterval);
   }, []);
 
-  // Login
-  const login = async (email, password) => {
+  // Cargar perfil del usuario desde el backend
+  const loadUserProfile = async () => {
     try {
-      // Buscar usuario en la base de usuarios
-      const foundUser = BASE_USERS.find(
-        u => u.email === email && u.password === password
-      );
+      // Obtener información de Keycloak
+      const keycloakProfile = keycloak.tokenParsed;
+      
+      // Extraer roles
+      const roles = keycloakProfile?.realm_access?.roles || [];
+      const isAdmin = roles.includes('ADMIN');
+      const role = isAdmin ? 'admin' : 'employee';
 
-      if (!foundUser) {
-        throw new Error('Credenciales incorrectas');
+      // Intentar obtener datos adicionales del backend
+      let backendProfile = null;
+      try {
+        backendProfile = await usuarioService.getProfile();
+      } catch (error) {
+        console.warn('No se pudo obtener perfil del backend:', error);
       }
 
-      // Crear objeto de usuario sin la contraseña
-      const { password: _, ...userWithoutPassword } = foundUser;
-      
-      // Guardar en localStorage y estado
-      localStorage.setItem('turnapp_user', JSON.stringify(userWithoutPassword));
-      setUser(userWithoutPassword);
+      // Combinar información de Keycloak y backend
+      const userProfile = {
+        id: keycloakProfile?.sub,
+        email: keycloakProfile?.email,
+        name: backendProfile?.nombre || keycloakProfile?.name || keycloakProfile?.preferred_username,
+        role: role,
+        roles: roles,
+        avatar: backendProfile?.avatar || null,
+        ...backendProfile
+      };
 
-      return { success: true, user: userWithoutPassword };
+      setUser(userProfile);
     } catch (error) {
+      console.error('Error al cargar perfil de usuario:', error);
+    }
+  };
+
+  // Login con Keycloak
+  const login = async () => {
+    try {
+      await keycloak.login({
+        redirectUri: window.location.origin
+      });
+      return { success: true };
+    } catch (error) {
+      console.error('Error en login:', error);
       return { success: false, error: error.message };
     }
   };
 
-  // Logout
-  const logout = () => {
-    localStorage.removeItem('turnapp_user');
-    setUser(null);
+  // Logout con Keycloak
+  const logout = async () => {
+    try {
+      await keycloak.logout({
+        redirectUri: window.location.origin
+      });
+      setUser(null);
+    } catch (error) {
+      console.error('Error en logout:', error);
+    }
   };
 
-  // Actualizar perfil
-  const updateProfile = (updates) => {
-    const updatedUser = { ...user, ...updates };
-    localStorage.setItem('turnapp_user', JSON.stringify(updatedUser));
-    setUser(updatedUser);
+  // Actualizar perfil del usuario
+  const updateProfile = async (updates) => {
+    try {
+      if (!user?.id) return;
+
+      const updatedData = await usuarioService.update(user.id, updates);
+      const updatedUser = { ...user, ...updatedData };
+      setUser(updatedUser);
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      console.error('Error al actualizar perfil:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Obtener token de acceso
+  const getToken = () => keycloak.token;
+
+  // Verificar si tiene un rol específico
+  const hasRole = (role) => {
+    return user?.roles?.includes(role) || false;
   };
 
   const value = {
@@ -84,9 +129,13 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
     loading,
-    isAuthenticated: !!user,
+    keycloakReady,
+    isAuthenticated: keycloak.authenticated || false,
     isAdmin: user?.role === 'admin',
-    isEmployee: user?.role === 'employee'
+    isEmployee: user?.role === 'employee',
+    getToken,
+    hasRole,
+    keycloak // Exponer instancia de keycloak por si se necesita
   };
 
   return (
