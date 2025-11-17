@@ -8,6 +8,7 @@ import ProfileScreen from './shared/components/ProfileScreen';
 import EmployeeLayout from './features/employee/components/EmployeeLayout';
 import EmployeeDashboard from './features/employee/components/EmployeeDashboard';
 import Horario from './features/employee/pages/Horario';
+import Asistencia from './features/employee/pages/Asistencia';
 
 // Rutas de Admin
 import AdminLayout from './features/admin/components/AdminLayout';
@@ -30,6 +31,7 @@ function App() {
           }
         >
           <Route index element={<EmployeeDashboard />} />
+          <Route path="asistencia" element={<Asistencia />} />
           <Route path="horario" element={<Horario />} />
           <Route path="perfil" element={<ProfileScreen />} />
         </Route>
