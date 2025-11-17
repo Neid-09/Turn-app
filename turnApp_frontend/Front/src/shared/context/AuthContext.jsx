@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import keycloak, { initOptions } from '../../config/keycloak.config';
 import { usuarioService } from '../../services/usuario.service';
 
@@ -8,12 +8,24 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [keycloakReady, setKeycloakReady] = useState(false);
+  const initStarted = useRef(false);
 
   // Inicializar Keycloak al montar el componente
   useEffect(() => {
     const initKeycloak = async () => {
+      // Prevenir múltiples inicializaciones
+      if (initStarted.current) {
+        console.log('Inicialización ya en progreso o completada');
+        return;
+      }
+      
+      initStarted.current = true;
+
       try {
+        console.log('Iniciando Keycloak...', keycloak);
+        
         const authenticated = await keycloak.init(initOptions);
+        console.log('Keycloak inicializado, autenticado:', authenticated);
         setKeycloakReady(true);
 
         if (authenticated) {
@@ -22,6 +34,7 @@ export const AuthProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error al inicializar Keycloak:', error);
+        initStarted.current = false; // Permitir reintentos en caso de error
       } finally {
         setLoading(false);
       }
@@ -45,6 +58,11 @@ export const AuthProvider = ({ children }) => {
       // Obtener información de Keycloak
       const keycloakProfile = keycloak.tokenParsed;
       
+      if (!keycloakProfile) {
+        console.warn('No se pudo obtener el token parseado de Keycloak');
+        return;
+      }
+      
       // Extraer roles
       const roles = keycloakProfile?.realm_access?.roles || [];
       const isAdmin = roles.includes('ADMIN');
@@ -54,8 +72,10 @@ export const AuthProvider = ({ children }) => {
       let backendProfile = null;
       try {
         backendProfile = await usuarioService.getProfile();
+        console.log('Perfil del backend obtenido:', backendProfile);
       } catch (error) {
-        console.warn('No se pudo obtener perfil del backend:', error);
+        console.warn('No se pudo obtener perfil del backend (esto es normal si el usuario no existe en BD):', error.response?.status);
+        // No es un error crítico, continuamos con los datos de Keycloak
       }
 
       // Combinar información de Keycloak y backend
@@ -70,6 +90,7 @@ export const AuthProvider = ({ children }) => {
       };
 
       setUser(userProfile);
+      console.log('Perfil de usuario cargado:', userProfile);
     } catch (error) {
       console.error('Error al cargar perfil de usuario:', error);
     }
@@ -77,6 +98,11 @@ export const AuthProvider = ({ children }) => {
 
   // Login con Keycloak
   const login = async () => {
+    if (!keycloakReady) {
+      console.error('Keycloak no está listo aún');
+      return { success: false, error: 'Keycloak no está inicializado' };
+    }
+    
     try {
       await keycloak.login({
         redirectUri: window.location.origin
@@ -90,6 +116,11 @@ export const AuthProvider = ({ children }) => {
 
   // Logout con Keycloak
   const logout = async () => {
+    if (!keycloakReady) {
+      console.error('Keycloak no está listo aún');
+      return;
+    }
+    
     try {
       await keycloak.logout({
         redirectUri: window.location.origin
@@ -116,7 +147,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Obtener token de acceso
-  const getToken = () => keycloak.token;
+  const getToken = () => {
+    if (!keycloakReady) {
+      console.warn('Keycloak no está listo aún');
+      return null;
+    }
+    return keycloak.token;
+  };
 
   // Verificar si tiene un rol específico
   const hasRole = (role) => {
@@ -130,7 +167,7 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     loading,
     keycloakReady,
-    isAuthenticated: keycloak.authenticated || false,
+    isAuthenticated: (keycloakReady && keycloak.authenticated) || false,
     isAdmin: user?.role === 'admin',
     isEmployee: user?.role === 'employee',
     getToken,

@@ -14,7 +14,9 @@ const keycloak = new Keycloak(keycloakConfig);
 export const initOptions = {
   onLoad: 'check-sso', // Verifica si hay sesión activa sin forzar login
   checkLoginIframe: false, // Mejora performance
-  pkceMethod: 'S256' // Seguridad adicional
+  pkceMethod: 'S256', // Seguridad adicional
+  enableLogging: true, // Habilitar logging para debug
+  flow: 'standard' // Usar flujo estándar de autenticación
 };
 
 export default keycloak;

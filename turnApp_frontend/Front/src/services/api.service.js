@@ -16,6 +16,9 @@ apiClient.interceptors.request.use(
   (config) => {
     if (keycloak.token) {
       config.headers.Authorization = `Bearer ${keycloak.token}`;
+      console.log('Token agregado a la petición:', config.url);
+    } else {
+      console.warn('No hay token disponible para la petición:', config.url);
     }
     return config;
   },
