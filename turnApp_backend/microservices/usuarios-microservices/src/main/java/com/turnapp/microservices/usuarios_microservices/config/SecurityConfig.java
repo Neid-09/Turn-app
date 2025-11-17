@@ -13,10 +13,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +30,8 @@ public class SecurityConfig {
         // 1. Deshabilitar CSRF (Cross-Site Request Forgery) para APIs stateless
         .csrf(csrf -> csrf.disable())
         
-        // 2. Configurar CORS
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        // 2. CORS está manejado por el API Gateway, no es necesario configurarlo aquí
+        // .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
         // 3. Configurar el microservicio como un Servidor de Recursos OAuth2
         .oauth2ResourceServer(oauth2 -> oauth2
@@ -134,8 +130,11 @@ public class SecurityConfig {
   }
 
   /**
-   * Configuración de CORS para permitir peticiones desde el frontend
+   * Configuración de CORS (deshabilitada porque el API Gateway maneja CORS globalmente)
+   * Si necesitas habilitar CORS a nivel de microservicio, descomenta este método
+   * y la línea .cors() en securityFilterChain
    */
+  /*
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
@@ -149,4 +148,5 @@ public class SecurityConfig {
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
+  */
 }
