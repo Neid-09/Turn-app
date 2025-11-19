@@ -11,6 +11,7 @@ import lombok.Builder;
 public record UsuarioListResponse(
     String id,
     String keycloakId,
+    String username,
     String email,
     String firstName,
     String lastName,
