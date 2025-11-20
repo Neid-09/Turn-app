@@ -13,7 +13,8 @@ import Asistencia from './features/employee/pages/Asistencia';
 // Rutas de Admin
 import AdminLayout from './features/admin/components/AdminLayout';
 import AdminDashboard from './features/admin/components/AdminDashboard';
-import EmpleadosPage from './features/admin/pages/EmpleadosPage'; 
+import EmpleadosPage from './features/admin/pages/EmpleadosPage';
+import HorariosPage from './features/admin/pages/HorariosPage'; 
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path="horarios" element={<HorariosPage />} />
           <Route path="empleados" element={<EmpleadosPage />} />
           <Route path="perfil" element={<ProfileScreen />} />
         </Route>
