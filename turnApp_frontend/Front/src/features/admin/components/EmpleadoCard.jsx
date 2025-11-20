@@ -12,7 +12,7 @@ export default function EmpleadoCard({ empleado, onEditar, onEliminar, onCambiar
   return (
     <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group">
       <div className="p-6">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-center">
           <div className="flex-1 flex items-start gap-4">
             {/* Avatar */}
             <div className="w-14 h-14 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shrink-0 shadow-md">

@@ -99,8 +99,7 @@ export default function EditarEmpleadoModal({ empleado, onClose, onSuccess }) {
         await usuarioService.changePassword(empleado.id, nuevaPassword);
       }
       
-      alert('Empleado actualizado exitosamente');
-      onSuccess();
+      onSuccess('Empleado actualizado exitosamente');
     } catch (err) {
       console.error('Error al actualizar empleado:', err);
       const errorMessage = err.response?.data?.mensaje || err.response?.data?.message || 'Error al actualizar el empleado';

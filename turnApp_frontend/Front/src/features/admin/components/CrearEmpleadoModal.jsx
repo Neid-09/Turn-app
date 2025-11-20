@@ -75,8 +75,7 @@ export default function CrearEmpleadoModal({ onClose, onSuccess }) {
       
       await usuarioService.create(requestData);
       
-      alert('Empleado creado exitosamente');
-      onSuccess();
+      onSuccess('Empleado creado exitosamente');
     } catch (err) {
       console.error('Error al crear empleado:', err);
       const errorMessage = err.response?.data?.mensaje || err.response?.data?.message || 'Error al crear el empleado';

@@ -4,6 +4,8 @@ import { FiPlus, FiSearch, FiUsers } from 'react-icons/fi';
 import CrearEmpleadoModal from '../components/CrearEmpleadoModal';
 import EditarEmpleadoModal from '../components/EditarEmpleadoModal';
 import EmpleadoCard from '../components/EmpleadoCard';
+import AlertDialog from '../../../shared/components/AlertDialog';
+import { useAlert } from '../../../shared/hooks/useAlert';
 
 export default function EmpleadosPage() {
   const [empleados, setEmpleados] = useState([]);
@@ -13,6 +15,7 @@ export default function EmpleadosPage() {
   const [showEditarModal, setShowEditarModal] = useState(false);
   const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(null);
   const [error, setError] = useState(null);
+  const { alert, confirm, success, error: showError, close } = useAlert();
 
   // Cargar empleados al montar el componente
   useEffect(() => {
@@ -57,48 +60,60 @@ export default function EmpleadosPage() {
     setShowEditarModal(true);
   };
 
-  const handleEliminar = async (id, nombre) => {
-    if (!window.confirm(`¿Estás seguro de eliminar a ${nombre}?`)) {
-      return;
-    }
-
-    try {
-      await usuarioService.delete(id);
-      alert('Empleado eliminado exitosamente');
-      cargarEmpleados();
-    } catch (err) {
-      console.error('Error al eliminar:', err);
-      alert('Error al eliminar el empleado');
-    }
+  const handleEliminar = (id, nombre) => {
+    confirm(
+      `¿Estás seguro de eliminar a ${nombre}? Esta acción no se puede deshacer.`,
+      async () => {
+        try {
+          await usuarioService.delete(id);
+          success('Empleado eliminado exitosamente');
+          cargarEmpleados();
+        } catch (err) {
+          console.error('Error al eliminar:', err);
+          showError('Error al eliminar el empleado');
+        }
+      },
+      'Eliminar Empleado'
+    );
   };
 
-  const handleCambiarEstado = async (id, estadoActual, nombre) => {
+  const handleCambiarEstado = (id, estadoActual, nombre) => {
     const nuevoEstado = !estadoActual;
     const accion = nuevoEstado ? 'habilitar' : 'deshabilitar';
     
-    if (!window.confirm(`¿Estás seguro de ${accion} a ${nombre}?`)) {
-      return;
-    }
-
-    try {
-      await usuarioService.changeStatus(id, nuevoEstado);
-      alert(`Empleado ${accion === 'habilitar' ? 'habilitado' : 'deshabilitado'} exitosamente`);
-      cargarEmpleados();
-    } catch (err) {
-      console.error('Error al cambiar estado:', err);
-      alert('Error al cambiar el estado del empleado');
-    }
+    confirm(
+      `¿Estás seguro de ${accion} a ${nombre}?`,
+      async () => {
+        try {
+          await usuarioService.changeStatus(id, nuevoEstado);
+          success(`Empleado ${accion === 'habilitar' ? 'habilitado' : 'deshabilitado'} exitosamente`);
+          cargarEmpleados();
+        } catch (err) {
+          console.error('Error al cambiar estado:', err);
+          showError('Error al cambiar el estado del empleado');
+        }
+      },
+      `${nuevoEstado ? 'Habilitar' : 'Deshabilitar'} Empleado`
+    );
   };
 
-  const handleCrearExitoso = () => {
+  const handleCrearExitoso = (mensaje) => {
     setShowCrearModal(false);
-    cargarEmpleados();
+    // Esperar a que el modal se cierre antes de mostrar la alerta
+    setTimeout(() => {
+      success(mensaje);
+      cargarEmpleados();
+    }, 100);
   };
 
-  const handleEditarExitoso = () => {
+  const handleEditarExitoso = (mensaje) => {
     setShowEditarModal(false);
     setEmpleadoSeleccionado(null);
-    cargarEmpleados();
+    // Esperar a que el modal se cierre antes de mostrar la alerta
+    setTimeout(() => {
+      success(mensaje);
+      cargarEmpleados();
+    }, 100);
   };
 
   return (
@@ -238,6 +253,18 @@ export default function EmpleadosPage() {
           onSuccess={handleEditarExitoso}
         />
       )}
+
+      {/* Componente de alertas */}
+      <AlertDialog
+        isOpen={alert.isOpen}
+        onClose={close}
+        onConfirm={alert.onConfirm}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        confirmText={alert.confirmText}
+        cancelText={alert.cancelText}
+      />
     </div>
   );
 }
