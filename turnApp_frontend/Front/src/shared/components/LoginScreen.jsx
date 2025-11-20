@@ -58,7 +58,7 @@ export default function LoginScreen() {
           {/* Login Button */}
           <button
             onClick={handleLogin}
-            className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+            className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <svg 
               className="w-5 h-5" 
