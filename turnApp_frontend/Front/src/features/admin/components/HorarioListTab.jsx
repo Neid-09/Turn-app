@@ -148,7 +148,7 @@ export default function HorarioListTab() {
   const [reporteData, setReporteData] = useState(null);
   const [horarioSeleccionado, setHorarioSeleccionado] = useState(null);
   const [modoVista, setModoVista] = useState('ver'); // 'ver' o 'editar'
-  const { confirm, success, error: showError } = useAlert();
+  const { alert, confirm, success, error: showError, close } = useAlert();
 
   useEffect(() => {
     cargarHorarios();
@@ -351,6 +351,54 @@ export default function HorarioListTab() {
             setHorarioSeleccionado(null);
           }}
         />
+      )}
+
+      {/* Modal de alerta */}
+      {alert.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {alert.title}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {alert.message}
+            </p>
+            <div className="flex gap-3 justify-end">
+              {alert.type === 'confirm' ? (
+                <>
+                  <button
+                    onClick={close}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
+                  >
+                    {alert.cancelText}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (alert.onConfirm) {
+                        alert.onConfirm();
+                      }
+                      close();
+                    }}
+                    className="px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg font-medium transition-colors"
+                  >
+                    {alert.confirmText}
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={close}
+                  className={`px-4 py-2 text-white rounded-lg font-medium transition-colors ${
+                    alert.type === 'success' ? 'bg-green-600 hover:bg-green-700' :
+                    alert.type === 'error' ? 'bg-red-600 hover:bg-red-700' :
+                    'bg-yellow-600 hover:bg-yellow-700'
+                  }`}
+                >
+                  {alert.confirmText}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
