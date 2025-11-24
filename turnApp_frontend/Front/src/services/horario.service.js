@@ -104,6 +104,19 @@ export const horarioService = {
     }
   },
 
+  // Eliminar múltiples detalles en lote
+  eliminarDetallesLote: async (horarioId, detalleIds) => {
+    try {
+      await apiClient.delete(
+        `${HORARIO_BASE_URL}/${horarioId}/detalles/lote`,
+        { data: detalleIds }
+      );
+    } catch (error) {
+      console.error('Error al eliminar detalles en lote:', error);
+      throw error;
+    }
+  },
+
   // ==================== PUBLICACIÓN ====================
 
   // Publicar horario (crea asignaciones en turnos-microservice)

@@ -32,6 +32,7 @@ export default function DetallesTurnoModal({
     detalleId: null,
     nombreEmpleado: ''
   });
+  const [confirmEliminarTodos, setConfirmEliminarTodos] = useState(false);
 
   const handleEliminarDetalle = (detalleId, nombreEmpleado) => {
     setConfirmDialog({
@@ -51,6 +52,24 @@ export default function DetallesTurnoModal({
       console.error('Error:', err);
       showError('Error al eliminar detalle');
       setConfirmDialog({ isOpen: false, detalleId: null, nombreEmpleado: '' });
+    }
+  };
+
+  const handleEliminarTodos = () => {
+    setConfirmEliminarTodos(true);
+  };
+
+  const confirmarEliminacionTodos = async () => {
+    try {
+      const detalleIds = turnoData.detalles.map(d => d.id);
+      await horarioService.eliminarDetallesLote(horarioId, detalleIds);
+      success(`${detalleIds.length} asignaciones eliminadas`);
+      setConfirmEliminarTodos(false);
+      onEliminar();
+    } catch (err) {
+      console.error('Error:', err);
+      showError('Error al eliminar asignaciones');
+      setConfirmEliminarTodos(false);
     }
   };
 
@@ -86,9 +105,21 @@ export default function DetallesTurnoModal({
           <div className="mb-4">
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-semibold text-gray-900">Empleados Asignados</h4>
-              <span className="text-sm font-medium text-purple-600">
-                {turnoData.cantidadEmpleados} {turnoData.cantidadEmpleados === 1 ? 'empleado' : 'empleados'}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-purple-600">
+                  {turnoData.cantidadEmpleados} {turnoData.cantidadEmpleados === 1 ? 'empleado' : 'empleados'}
+                </span>
+                {!soloLectura && turnoData.detalles.length > 0 && (
+                  <button
+                    onClick={handleEliminarTodos}
+                    className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg font-medium transition-colors flex items-center gap-1.5"
+                    title="Eliminar todas las asignaciones de este turno"
+                  >
+                    <FiX className="w-4 h-4" />
+                    Eliminar Todo
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -121,7 +152,7 @@ export default function DetallesTurnoModal({
         </div>
       </div>
 
-      {/* Diálogo de confirmación */}
+      {/* Diálogo de confirmación individual */}
       <AlertDialog
         isOpen={confirmDialog.isOpen}
         onClose={() => setConfirmDialog({ isOpen: false, detalleId: null, nombreEmpleado: '' })}
@@ -130,6 +161,18 @@ export default function DetallesTurnoModal({
         message={`¿Estás seguro de eliminar la asignación de ${confirmDialog.nombreEmpleado}? Esta acción no se puede deshacer.`}
         type="confirm"
         confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
+
+      {/* Diálogo de confirmación para eliminar todos */}
+      <AlertDialog
+        isOpen={confirmEliminarTodos}
+        onClose={() => setConfirmEliminarTodos(false)}
+        onConfirm={confirmarEliminacionTodos}
+        title="Eliminar Todas las Asignaciones"
+        message={`¿Estás seguro de eliminar TODAS las asignaciones de este turno (${turnoData.cantidadEmpleados} ${turnoData.cantidadEmpleados === 1 ? 'empleado' : 'empleados'})? Esta acción no se puede deshacer.`}
+        type="confirm"
+        confirmText="Eliminar Todo"
         cancelText="Cancelar"
       />
     </div>
