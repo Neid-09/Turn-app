@@ -114,6 +114,19 @@ public interface IHorarioService {
      */
     void eliminarDetalle(Long horarioId, Long detalleId);
     
+    /**
+     * Elimina múltiples detalles del horario en lote.
+     * Solo se pueden eliminar detalles de horarios en BORRADOR.
+     * 
+     * @param horarioId ID del horario
+     * @param detalleIds Lista de IDs de detalles a eliminar
+     * @throws com.turnapp.microservice.horarios_microservice.shared.exception.ResourceNotFoundException 
+     *         si el horario no existe o algún detalle no existe
+     * @throws com.turnapp.microservice.horarios_microservice.shared.exception.BusinessLogicException 
+     *         si el horario no está en estado BORRADOR o algún detalle no pertenece al horario
+     */
+    void eliminarDetallesEnLote(Long horarioId, List<Long> detalleIds);
+    
     // ================== PUBLICACIÓN ==================
     
     /**

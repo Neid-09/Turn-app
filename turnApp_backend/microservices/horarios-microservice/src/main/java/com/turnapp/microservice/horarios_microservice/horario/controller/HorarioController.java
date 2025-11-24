@@ -198,6 +198,27 @@ public class HorarioController {
         return ResponseEntity.noContent().build();
     }
     
+    /**
+     * Elimina múltiples detalles del horario en lote.
+     * 
+     * DELETE /api/horarios/{horarioId}/detalles/lote
+     * Body: [1, 2, 3, ...] (lista de IDs de detalles)
+     * 
+     * @param horarioId ID del horario
+     * @param detalleIds Lista de IDs de detalles a eliminar
+     * @return 204 No Content
+     */
+    @DeleteMapping("/{horarioId}/detalles/lote")
+    public ResponseEntity<Void> eliminarDetallesEnLote(
+            @PathVariable Long horarioId,
+            @RequestBody List<Long> detalleIds) {
+        
+        log.info("DELETE /api/horarios/{}/detalles/lote - {} detalles", horarioId, detalleIds.size());
+        
+        horarioService.eliminarDetallesEnLote(horarioId, detalleIds);
+        return ResponseEntity.noContent().build();
+    }
+    
     // ================== PUBLICACIÓN ==================
     
     /**

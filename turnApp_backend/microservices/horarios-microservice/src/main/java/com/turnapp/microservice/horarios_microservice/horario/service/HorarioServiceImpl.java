@@ -228,6 +228,61 @@ public class HorarioServiceImpl implements IHorarioService {
         log.info("Detalle eliminado exitosamente");
     }
     
+    @Override
+    public void eliminarDetallesEnLote(Long horarioId, List<Long> detalleIds) {
+        log.info("Eliminando {} detalles del horario ID: {}", detalleIds.size(), horarioId);
+        
+        if (detalleIds == null || detalleIds.isEmpty()) {
+            log.warn("Lista de detalleIds vacía, no se eliminará nada");
+            return;
+        }
+        
+        Horario horario = buscarHorarioPorId(horarioId);
+        
+        // Validar que esté en estado BORRADOR
+        if (!horario.esEditable()) {
+            throw new BusinessLogicException(
+                "No se pueden eliminar detalles de un horario en estado " + horario.getEstado()
+            );
+        }
+        
+        // Obtener todos los detalles a eliminar
+        List<HorarioDetalle> detalles = detalleRepository.findAllById(detalleIds);
+        
+        // Validar que se encontraron todos los detalles
+        if (detalles.size() != detalleIds.size()) {
+            Set<Long> encontrados = detalles.stream()
+                .map(HorarioDetalle::getId)
+                .collect(Collectors.toSet());
+            Set<Long> noEncontrados = detalleIds.stream()
+                .filter(id -> !encontrados.contains(id))
+                .collect(Collectors.toSet());
+            throw new ResourceNotFoundException(
+                "No se encontraron los siguientes detalles: " + noEncontrados
+            );
+        }
+        
+        // Validar que todos los detalles pertenezcan al horario
+        List<HorarioDetalle> detallesInvalidos = detalles.stream()
+            .filter(d -> !d.getHorario().getId().equals(horarioId))
+            .collect(Collectors.toList());
+        
+        if (!detallesInvalidos.isEmpty()) {
+            throw new BusinessLogicException(
+                "Los siguientes detalles no pertenecen al horario especificado: " +
+                detallesInvalidos.stream()
+                    .map(d -> d.getId().toString())
+                    .collect(Collectors.joining(", "))
+            );
+        }
+        
+        // Eliminar todos los detalles
+        detalles.forEach(horario::removerDetalle);
+        horarioRepository.save(horario);
+        
+        log.info("{} detalles eliminados exitosamente", detalles.size());
+    }
+    
     // ================== PUBLICACIÓN ==================
     
     @Override
