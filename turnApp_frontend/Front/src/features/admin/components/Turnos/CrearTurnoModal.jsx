@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { turnoSchema } from '../../../schemas/turno.schema';
-import { turnoService } from '../../../services/turno.service';
+import { turnoSchema } from '../../../../schemas/turno.schema';
+import { turnoService } from '../../../../services/turno.service';
 import { FiX, FiSave } from 'react-icons/fi';
-import FormInput from '../../../shared/components/FormInput';
+import FormInput from '../../../../shared/components/FormInput';
 
 export default function CrearTurnoModal({ onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);

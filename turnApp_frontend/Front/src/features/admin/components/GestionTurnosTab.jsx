@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { turnoService } from '../../../services/turno.service';
 import { FiPlus, FiClock, FiEdit, FiTrash2, FiPower } from 'react-icons/fi';
 import { useAlert } from '../../../shared/hooks/useAlert';
-import CrearTurnoModal from './CrearTurnoModal';
-import EditarTurnoModal from './EditarTurnoModal';
+import CrearTurnoModal from './Turnos/CrearTurnoModal';
+import EditarTurnoModal from './Turnos/EditarTurnoModal';
 
 // Card de turno
 function TurnoCard({ turno, onEditar, onEliminar, onCambiarEstado }) {
