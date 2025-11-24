@@ -5,7 +5,7 @@ import { useAlert } from '../../../shared/hooks/useAlert';
 import AsistenteHorarioModal from './AsistenteHorarioModal';
 import { CalendarioHorarioModal } from './CalendarioHorario';
 import ReportePublicacionModal from './ReportePublicacionModal';
-import VistaConsolidadaModal from './VistaConsolidadaModal';
+import VistaConsolidadaModal from './VistaConsolidada/VistaConsolidadaModal';
 
 // Función helper para parsear fechas ISO sin conversión de zona horaria
 const parseLocalDate = (dateString) => {
