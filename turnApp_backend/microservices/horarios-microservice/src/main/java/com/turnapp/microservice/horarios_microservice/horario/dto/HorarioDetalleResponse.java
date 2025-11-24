@@ -23,6 +23,11 @@ public class HorarioDetalleResponse {
     private Long id;
     private Long horarioId;
     private String usuarioId;
+    /**
+     * Nombre completo del empleado asignado.
+     * Se obtiene desde usuarios-microservice via Feign Client.
+     */
+    private String nombreEmpleado;
     private LocalDate fecha;
     private Long turnoId;
     private String nombreTurno;

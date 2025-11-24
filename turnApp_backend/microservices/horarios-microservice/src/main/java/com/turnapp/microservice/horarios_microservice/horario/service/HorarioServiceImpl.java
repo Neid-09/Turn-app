@@ -6,6 +6,8 @@ import com.turnapp.microservice.horarios_microservice.horario.repository.Horario
 import com.turnapp.microservice.horarios_microservice.horario.repository.HorarioRepository;
 import com.turnapp.microservice.horarios_microservice.integration.turnos.client.TurnosClient;
 import com.turnapp.microservice.horarios_microservice.integration.turnos.dto.*;
+import com.turnapp.microservice.horarios_microservice.integration.usuario.client.UsuarioBasicoResponse;
+import com.turnapp.microservice.horarios_microservice.integration.usuario.client.UsuarioClient;
 import com.turnapp.microservice.horarios_microservice.shared.exception.*;
 
 import feign.FeignException;
@@ -43,6 +45,7 @@ public class HorarioServiceImpl implements IHorarioService {
     private final HorarioRepository horarioRepository;
     private final HorarioDetalleRepository detalleRepository;
     private final TurnosClient turnosClient;
+    private final UsuarioClient usuarioClient;
     
     // ================== OPERACIONES DE HORARIOS ==================
     
@@ -505,10 +508,29 @@ public class HorarioServiceImpl implements IHorarioService {
     }
     
     private HorarioDetalleResponse mapearDetalleAResponse(HorarioDetalle detalle) {
+        // Obtener el nombre del empleado desde usuarios-microservice
+        String nombreEmpleado = null;
+        try {
+            UsuarioBasicoResponse usuario = usuarioClient.obtenerUsuarioPorKeycloakId(detalle.getUsuarioId());
+            if (usuario != null) {
+                nombreEmpleado = String.format("%s %s", 
+                    usuario.getFirstName() != null ? usuario.getFirstName() : "",
+                    usuario.getLastName() != null ? usuario.getLastName() : ""
+                ).trim();
+            }
+        } catch (FeignException.NotFound e) {
+            log.warn("Usuario no encontrado: {}", detalle.getUsuarioId());
+            nombreEmpleado = "Usuario no encontrado";
+        } catch (Exception e) {
+            log.error("Error al obtener datos del usuario {}: {}", detalle.getUsuarioId(), e.getMessage());
+            nombreEmpleado = "Error al cargar nombre";
+        }
+        
         return HorarioDetalleResponse.builder()
                 .id(detalle.getId())
                 .horarioId(detalle.getHorario().getId())
                 .usuarioId(detalle.getUsuarioId())
+                .nombreEmpleado(nombreEmpleado)
                 .fecha(detalle.getFecha())
                 .turnoId(detalle.getTurnoId())
                 .nombreTurno(detalle.getNombreTurno())

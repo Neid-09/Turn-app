@@ -27,7 +27,10 @@ import java.util.concurrent.TimeUnit;
  * @author TurnApp Team
  */
 @Configuration
-@EnableFeignClients(basePackages = "com.turnapp.microservice.horarios_microservice.integration.turnos.client")
+@EnableFeignClients(basePackages = {
+    "com.turnapp.microservice.horarios_microservice.integration.turnos.client",
+    "com.turnapp.microservice.horarios_microservice.integration.usuario.client"
+})
 @Slf4j
 public class FeignConfig {
     
