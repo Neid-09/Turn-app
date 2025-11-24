@@ -2,6 +2,17 @@ import { useState, useEffect } from 'react';
 import { horarioService } from '../../../services/horario.service';
 import { FiPlus, FiFilter, FiCalendar, FiEye, FiEdit, FiTrash2, FiSend } from 'react-icons/fi';
 import { useAlert } from '../../../shared/hooks/useAlert';
+import AsistenteHorarioModal from './AsistenteHorarioModal';
+import { CalendarioHorarioModal } from './CalendarioHorario';
+import ReportePublicacionModal from './ReportePublicacionModal';
+import VistaConsolidadaModal from './VistaConsolidadaModal';
+
+// Función helper para parsear fechas ISO sin conversión de zona horaria
+const parseLocalDate = (dateString) => {
+  if (!dateString) return new Date();
+  const [year, month, day] = dateString.split('T')[0].split('-');
+  return new Date(year, month - 1, day);
+};
 
 // Badge de estado
 function EstadoBadge({ estado }) {
@@ -23,9 +34,9 @@ function EstadoBadge({ estado }) {
 }
 
 // Card de horario
-function HorarioCard({ horario, onVer, onEditar, onEliminar, onPublicar }) {
+function HorarioCard({ horario, onVer, onEditar, onEliminar, onPublicar, onVerConsolidado }) {
   const formatFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString('es-ES', {
+    return parseLocalDate(fecha).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -34,6 +45,7 @@ function HorarioCard({ horario, onVer, onEditar, onEliminar, onPublicar }) {
 
   const puedeEditar = horario.estado === 'BORRADOR';
   const puedePublicar = horario.estado === 'BORRADOR' && horario.cantidadDetalles > 0;
+  const estaPublicado = horario.estado === 'PUBLICADO' || horario.estado === 'ACTIVO';
 
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
@@ -100,6 +112,16 @@ function HorarioCard({ horario, onVer, onEditar, onEliminar, onPublicar }) {
               Publicar
             </button>
           )}
+
+          {estaPublicado && (
+            <button
+              onClick={() => onVerConsolidado(horario)}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+            >
+              <FiCalendar className="w-4 h-4" />
+              Consolidado
+            </button>
+          )}
           
           {puedeEditar && (
             <button
@@ -119,6 +141,13 @@ export default function HorarioListTab() {
   const [horarios, setHorarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState('TODOS');
+  const [mostrarAsistente, setMostrarAsistente] = useState(false);
+  const [mostrarCalendario, setMostrarCalendario] = useState(false);
+  const [mostrarReporte, setMostrarReporte] = useState(false);
+  const [mostrarConsolidado, setMostrarConsolidado] = useState(false);
+  const [reporteData, setReporteData] = useState(null);
+  const [horarioSeleccionado, setHorarioSeleccionado] = useState(null);
+  const [modoVista, setModoVista] = useState('ver'); // 'ver' o 'editar'
   const { confirm, success, error: showError } = useAlert();
 
   useEffect(() => {
@@ -143,13 +172,15 @@ export default function HorarioListTab() {
   );
 
   const handleVer = (horario) => {
-    // TODO: Abrir modal de vista/calendario
-    console.log('Ver horario:', horario);
+    setHorarioSeleccionado(horario);
+    setModoVista('ver'); // Solo lectura
+    setMostrarCalendario(true);
   };
 
   const handleEditar = (horario) => {
-    // TODO: Abrir modal de edición
-    console.log('Editar horario:', horario);
+    setHorarioSeleccionado(horario);
+    setModoVista('editar'); // Modo edición
+    setMostrarCalendario(true);
   };
 
   const handleEliminar = (horario) => {
@@ -175,9 +206,8 @@ export default function HorarioListTab() {
       async () => {
         try {
           const reporte = await horarioService.publicar(horario.id);
-          // TODO: Mostrar modal con reporte detallado
-          success(`Horario publicado: ${reporte.totalExitosos}/${reporte.totalProcesados} asignaciones creadas`);
-          cargarHorarios();
+          setReporteData(reporte);
+          setMostrarReporte(true);
         } catch (err) {
           console.error('Error al publicar:', err);
           showError('Error al publicar el horario');
@@ -187,9 +217,19 @@ export default function HorarioListTab() {
     );
   };
 
+  const handleVerConsolidado = (horario) => {
+    setHorarioSeleccionado(horario);
+    setMostrarConsolidado(true);
+  };
+
   const handleCrearNuevo = () => {
-    // TODO: Abrir asistente de creación
-    console.log('Crear nuevo horario');
+    setMostrarAsistente(true);
+  };
+
+  const handleAsistenteSuccess = () => {
+    setMostrarAsistente(false);
+    success('Horario creado exitosamente');
+    cargarHorarios();
   };
 
   return (
@@ -259,9 +299,58 @@ export default function HorarioListTab() {
               onEditar={handleEditar}
               onEliminar={handleEliminar}
               onPublicar={handlePublicar}
+              onVerConsolidado={handleVerConsolidado}
             />
           ))}
         </div>
+      )}
+
+      {/* Modales */}
+      {mostrarAsistente && (
+        <AsistenteHorarioModal
+          onClose={() => setMostrarAsistente(false)}
+          onSuccess={handleAsistenteSuccess}
+        />
+      )}
+
+      {mostrarCalendario && horarioSeleccionado && (
+        <CalendarioHorarioModal
+          horario={horarioSeleccionado}
+          modoVista={modoVista}
+          onClose={() => {
+            setMostrarCalendario(false);
+            setHorarioSeleccionado(null);
+            cargarHorarios();
+          }}
+          onPublicar={(reporte) => {
+            setMostrarCalendario(false);
+            setHorarioSeleccionado(null);
+            setReporteData(reporte);
+            setMostrarReporte(true);
+          }}
+        />
+      )}
+
+      {mostrarReporte && reporteData && (
+        <ReportePublicacionModal
+          reporte={reporteData}
+          onClose={() => {
+            setMostrarReporte(false);
+            setReporteData(null);
+            success(`Publicado: ${reporteData.totalExitosos}/${reporteData.totalProcesados} asignaciones`);
+            cargarHorarios();
+          }}
+        />
+      )}
+
+      {mostrarConsolidado && horarioSeleccionado && (
+        <VistaConsolidadaModal
+          horario={horarioSeleccionado}
+          onClose={() => {
+            setMostrarConsolidado(false);
+            setHorarioSeleccionado(null);
+          }}
+        />
       )}
     </div>
   );
