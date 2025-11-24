@@ -7,6 +7,8 @@ import com.turnapp.microservice.turnos_microservice.asignacionTurno.model.Estado
 import com.turnapp.microservice.turnos_microservice.asignacionTurno.repository.AsignacionTurnoRepository;
 import com.turnapp.microservice.turnos_microservice.disponibilidad.model.DiaSemana;
 import com.turnapp.microservice.turnos_microservice.disponibilidad.service.IDisponibilidadService;
+import com.turnapp.microservice.turnos_microservice.integration.usuario.client.UsuarioBasicoResponse;
+import com.turnapp.microservice.turnos_microservice.integration.usuario.client.UsuarioClient;
 import com.turnapp.microservice.turnos_microservice.integration.usuario.service.IUsuarioValidationService;
 import com.turnapp.microservice.turnos_microservice.shared.exception.BusinessLogicException;
 import com.turnapp.microservice.turnos_microservice.shared.exception.ResourceNotFoundException;
@@ -14,6 +16,7 @@ import com.turnapp.microservice.turnos_microservice.turno.model.EstadoTurno;
 import com.turnapp.microservice.turnos_microservice.turno.model.Turno;
 import com.turnapp.microservice.turnos_microservice.turno.repository.TurnoRepository;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -43,6 +46,7 @@ public class AsignacionServiceImpl implements IAsignacionService {
   private final TurnoRepository turnoRepository;
   private final IDisponibilidadService disponibilidadService;
   private final IUsuarioValidationService usuarioValidationService;
+  private final UsuarioClient usuarioClient;
 
   @Override
   @Transactional
@@ -282,9 +286,28 @@ public class AsignacionServiceImpl implements IAsignacionService {
    * Convierte una entidad AsignacionTurno a AsignacionResponse DTO.
    */
   private AsignacionResponse mapearAAsignacionResponse(AsignacionTurno asignacion) {
+    // Obtener el nombre del usuario desde usuarios-microservice
+    String nombreUsuario = null;
+    try {
+      UsuarioBasicoResponse usuario = usuarioClient.obtenerUsuarioPorKeycloakId(asignacion.getUsuarioId());
+      if (usuario != null) {
+        nombreUsuario = String.format("%s %s", 
+          usuario.getFirstName() != null ? usuario.getFirstName() : "",
+          usuario.getLastName() != null ? usuario.getLastName() : ""
+        ).trim();
+      }
+    } catch (FeignException.NotFound e) {
+      log.warn("Usuario no encontrado: {}", asignacion.getUsuarioId());
+      nombreUsuario = "Usuario no encontrado";
+    } catch (Exception e) {
+      log.error("Error al obtener datos del usuario {}: {}", asignacion.getUsuarioId(), e.getMessage());
+      nombreUsuario = "Error al cargar nombre";
+    }
+
     return AsignacionResponse.builder()
         .id(asignacion.getId())
         .usuarioId(asignacion.getUsuarioId())
+        .nombreUsuario(nombreUsuario)
         .turnoId(asignacion.getTurno().getId())
         .nombreTurno(asignacion.getTurno().getNombre())
         .fecha(asignacion.getFecha())

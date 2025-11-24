@@ -26,6 +26,7 @@ public class AsignacionResponse {
     
     private Long id;
     private String usuarioId;
+    private String nombreUsuario; // Nuevo campo para el nombre completo del usuario
     private Long turnoId;
     private String nombreTurno;
     private LocalDate fecha;
