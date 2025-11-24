@@ -3,7 +3,7 @@ export const API_CONFIG = {
   baseURL: 'http://localhost:8080', // API Gateway
   endpoints: {
     usuarios: '/usuarios-microservices/usuarios',
-    turnos: '/turnos-microservice/api/turnos',
+    turnos: '/turnos-microservice/',
     horarios: '/horarios-microservice/api/horarios'
   }
 };

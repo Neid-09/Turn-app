@@ -1,7 +1,11 @@
 import apiClient from './api.service';
 import { API_CONFIG } from '../config/api.config';
 
-const TURNO_BASE_URL = API_CONFIG.endpoints.turnos;
+// Considerar que para turnos, disponibilidades... hay un path diferente
+
+const TURNO_BASE_URL = API_CONFIG.endpoints.turnos; 
+const API_TURNOS = `${TURNO_BASE_URL}api/turnos`;
+const API_ASIGNACIONES = `${TURNO_BASE_URL}api/asignaciones`;
 
 export const turnoService = {
   // ==================== CRUD DE TURNOS ====================
@@ -9,7 +13,7 @@ export const turnoService = {
   // Crear turno
   crear: async (data) => {
     try {
-      const response = await apiClient.post(TURNO_BASE_URL, data);
+      const response = await apiClient.post(API_TURNOS, data);
       return response.data;
     } catch (error) {
       console.error('Error al crear turno:', error);
@@ -20,7 +24,7 @@ export const turnoService = {
   // Listar todos los turnos
   listarTodos: async () => {
     try {
-      const response = await apiClient.get(TURNO_BASE_URL);
+      const response = await apiClient.get(API_TURNOS);
       return response.data;
     } catch (error) {
       console.error('Error al listar turnos:', error);
@@ -31,7 +35,7 @@ export const turnoService = {
   // Listar turnos activos
   listarActivos: async () => {
     try {
-      const response = await apiClient.get(`${TURNO_BASE_URL}/activos`);
+      const response = await apiClient.get(`${API_TURNOS}/activos`);
       return response.data;
     } catch (error) {
       console.error('Error al listar turnos activos:', error);
@@ -42,7 +46,7 @@ export const turnoService = {
   // Obtener turno por ID
   obtenerPorId: async (id) => {
     try {
-      const response = await apiClient.get(`${TURNO_BASE_URL}/${id}`);
+      const response = await apiClient.get(`${API_TURNOS}/${id}`);
       return response.data;
     } catch (error) {
       console.error('Error al obtener turno:', error);
@@ -53,7 +57,7 @@ export const turnoService = {
   // Actualizar turno
   actualizar: async (id, data) => {
     try {
-      const response = await apiClient.put(`${TURNO_BASE_URL}/${id}`, data);
+      const response = await apiClient.put(`${API_TURNOS}/${id}`, data);
       return response.data;
     } catch (error) {
       console.error('Error al actualizar turno:', error);
@@ -64,7 +68,7 @@ export const turnoService = {
   // Eliminar turno (soft delete)
   eliminar: async (id) => {
     try {
-      await apiClient.delete(`${TURNO_BASE_URL}/${id}`);
+      await apiClient.delete(`${API_TURNOS}/${id}`);
     } catch (error) {
       console.error('Error al eliminar turno:', error);
       throw error;
@@ -76,7 +80,7 @@ export const turnoService = {
   // Crear asignación
   crearAsignacion: async (data) => {
     try {
-      const response = await apiClient.post(`${TURNO_BASE_URL}/asignaciones`, data);
+      const response = await apiClient.post(`${API_ASIGNACIONES}`, data);
       return response.data;
     } catch (error) {
       console.error('Error al crear asignación:', error);
@@ -88,7 +92,7 @@ export const turnoService = {
   obtenerAsignacionesPorUsuario: async (usuarioId) => {
     try {
       const response = await apiClient.get(
-        `${TURNO_BASE_URL}/asignaciones/usuario/${usuarioId}`
+        `${API_ASIGNACIONES}/usuario/${usuarioId}`
       );
       return response.data;
     } catch (error) {
@@ -101,7 +105,7 @@ export const turnoService = {
   obtenerAsignacionesPorFecha: async (fecha) => {
     try {
       const response = await apiClient.get(
-        `${TURNO_BASE_URL}/asignaciones/fecha`,
+        `${API_ASIGNACIONES}/fecha`,
         { params: { fecha } }
       );
       return response.data;
@@ -115,7 +119,7 @@ export const turnoService = {
   obtenerAsignacionesPorPeriodo: async (fechaInicio, fechaFin) => {
     try {
       const response = await apiClient.get(
-        `${TURNO_BASE_URL}/asignaciones/periodo`,
+        `${API_ASIGNACIONES}/periodo`,
         { params: { fechaInicio, fechaFin } }
       );
       return response.data;
@@ -128,7 +132,7 @@ export const turnoService = {
   // Cancelar asignación
   cancelarAsignacion: async (id) => {
     try {
-      await apiClient.patch(`${TURNO_BASE_URL}/asignaciones/${id}/cancelar`);
+      await apiClient.patch(`${API_ASIGNACIONES}/${id}/cancelar`);
     } catch (error) {
       console.error('Error al cancelar asignación:', error);
       throw error;
@@ -138,7 +142,7 @@ export const turnoService = {
   // Completar asignación
   completarAsignacion: async (id) => {
     try {
-      await apiClient.patch(`${TURNO_BASE_URL}/asignaciones/${id}/completar`);
+      await apiClient.patch(`${API_ASIGNACIONES}/${id}/completar`);
     } catch (error) {
       console.error('Error al completar asignación:', error);
       throw error;
