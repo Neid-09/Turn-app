@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { usuarioService } from '../../../services/usuario.service';
+import { usuarioService } from '../../../../services/usuario.service';
 import { FiX, FiEdit, FiUser, FiMail, FiLock, FiBriefcase, FiPhone, FiCreditCard, FiShield, FiSave } from 'react-icons/fi';
-import { editarEmpleadoSchema, cambiarPasswordSchema } from '../../../schemas/empleado.schema';
-import FormInput from '../../../shared/components/FormInput';
+import { editarEmpleadoSchema, cambiarPasswordSchema } from '../../../../schemas/empleado.schema';
+import FormInput from '../../../../shared/components/FormInput';
 
 export default function EditarEmpleadoModal({ empleado, onClose, onSuccess }) {
   const [formData, setFormData] = useState({

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { usuarioService } from '../../../services/usuario.service';
+import { usuarioService } from '../../../../services/usuario.service';
 import { FiX, FiPlus, FiUser, FiMail, FiLock, FiBriefcase, FiPhone, FiCreditCard, FiShield } from 'react-icons/fi';
-import { crearEmpleadoSchema } from '../../../schemas/empleado.schema';
-import FormInput from '../../../shared/components/FormInput';
+import { crearEmpleadoSchema } from '../../../../schemas/empleado.schema';
+import FormInput from '../../../../shared/components/FormInput';
 
 export default function CrearEmpleadoModal({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({

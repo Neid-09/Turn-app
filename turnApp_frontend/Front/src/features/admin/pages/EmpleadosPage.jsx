@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { usuarioService } from '../../../services/usuario.service';
 import { FiPlus, FiSearch, FiUsers } from 'react-icons/fi';
-import CrearEmpleadoModal from '../components/CrearEmpleadoModal';
-import EditarEmpleadoModal from '../components/EditarEmpleadoModal';
-import EmpleadoCard from '../components/EmpleadoCard';
+import CrearEmpleadoModal from '../components/Empleado/CrearEmpleadoModal';
+import EditarEmpleadoModal from '../components/Empleado/EditarEmpleadoModal';
+import EmpleadoCard from '../components/Empleado/EmpleadoCard';
 import AlertDialog from '../../../shared/components/AlertDialog';
 import { useAlert } from '../../../shared/hooks/useAlert';
 
