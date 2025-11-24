@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { horarioService } from '../../../services/horario.service';
 import { FiPlus, FiFilter, FiCalendar, FiEye, FiEdit, FiTrash2, FiSend } from 'react-icons/fi';
 import { useAlert } from '../../../shared/hooks/useAlert';
-import AsistenteHorarioModal from './AsistenteHorarioModal';
+import AsistenteHorarioModal from './AsistenteHorario/AsistenteHorarioModal';
 import { CalendarioHorarioModal } from './CalendarioHorario';
 import ReportePublicacionModal from './ReportePublicacionModal';
 import VistaConsolidadaModal from './VistaConsolidada/VistaConsolidadaModal';

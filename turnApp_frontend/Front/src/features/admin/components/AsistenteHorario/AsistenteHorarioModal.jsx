@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { horarioSchema } from '../../../schemas/horario.schema';
-import { horarioService } from '../../../services/horario.service';
-import { turnoService } from '../../../services/turno.service';
+import { horarioSchema } from '../../../../schemas/horario.schema';
+import { horarioService } from '../../../../services/horario.service';
+import { turnoService } from '../../../../services/turno.service';
 import { FiX, FiChevronLeft, FiChevronRight, FiCheck } from 'react-icons/fi';
-import StepIndicator from './AsistenteHorario/StepIndicator';
-import Paso1InfoBasica from './AsistenteHorario/Paso1InfoBasica';
-import Paso2AsignarTurnos from './AsistenteHorario/Paso2AsignarTurnos';
-import Paso3Revision from './AsistenteHorario/Paso3Revision';
-import { useAsignaciones } from '../hooks/useAsignaciones';
+import StepIndicator from './StepIndicator';
+import Paso1InfoBasica from './Paso1InfoBasica';
+import Paso2AsignarTurnos from './Paso2AsignarTurnos';
+import Paso3Revision from './Paso3Revision';
+import { useAsignaciones } from '../../hooks/useAsignaciones';
 
 // Componente principal
 export default function AsistenteHorarioModal({ onClose, onSuccess }) {
