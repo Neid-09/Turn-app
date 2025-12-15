@@ -1,14 +1,10 @@
 import { useMemo } from 'react';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'moment/locale/es';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import CustomToolbar from '../CalendarioHorario/CustomToolbar';
-import { parseLocalDate } from '../CalendarioHorario/utils/calendarHelpers';
+import CalendarioBase from '../CalendarioHorario/CalendarioBase';
 import { ESTADO_CONFIG, CALENDAR_MESSAGES } from './constants';
 
 moment.locale('es');
-const localizer = momentLocalizer(moment);
 
 /**
  * Componente de calendario de asignaciones
@@ -101,35 +97,17 @@ export default function CalendarioAsignaciones({
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
       <h3 className="text-lg font-bold text-gray-900 mb-4">Calendario de Asignaciones</h3>
-      <div style={{ height: '600px' }}>
-        <Calendar
-          localizer={localizer}
-          events={eventos}
-          startAccessor="start"
-          endAccessor="end"
-          view={view}
-          onView={onView}
-          date={date}
-          onNavigate={onNavigate}
-          onSelectEvent={onSelectEvent}
-          components={{
-            toolbar: (props) => <CustomToolbar {...props} view={view} onView={onView} accentColor="blue" />
-          }}
-          eventPropGetter={(event) => ({
-            style: {
-              backgroundColor: event.resource.color,
-              borderColor: event.resource.color,
-              color: 'white',
-              borderRadius: '6px',
-              padding: '2px 6px',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              cursor: 'pointer'
-            }
-          })}
-          messages={CALENDAR_MESSAGES}
-        />
-      </div>
+      <CalendarioBase
+        eventos={eventos}
+        view={view}
+        date={date}
+        onView={onView}
+        onNavigate={onNavigate}
+        onSelectEvent={onSelectEvent}
+        selectable={false}
+        accentColor="blue"
+        messages={CALENDAR_MESSAGES}
+      />
     </div>
   );
 }

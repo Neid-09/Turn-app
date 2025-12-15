@@ -7,8 +7,10 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
  * @param {Function} props.onNavigate - Función de navegación
  * @param {Function} props.onView - Función para cambiar vista
  * @param {string} props.view - Vista actual
+ * @param {string} props.accentColor - Color de acento ('purple' | 'blue')
  */
-export default function CustomToolbar({ label, onNavigate, onView, view }) {
+export default function CustomToolbar({ label, onNavigate, onView, view, accentColor = 'purple' }) {
+  const activeClass = accentColor === 'blue' ? 'bg-blue-600' : 'bg-purple-600';
   return (
     <div className="mb-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
       <div className="flex items-center gap-2">
@@ -43,7 +45,7 @@ export default function CustomToolbar({ label, onNavigate, onView, view }) {
             onClick={() => onView(v)}
             className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
               view === v
-                ? 'bg-purple-600 text-white'
+                ? `${activeClass} text-white`
                 : 'text-gray-700 hover:bg-gray-100'
             }`}
           >

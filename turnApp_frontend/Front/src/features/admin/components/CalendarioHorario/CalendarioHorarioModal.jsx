@@ -1,13 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'moment/locale/es';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { horarioService } from '../../../../services/horario.service';
 import { turnoService } from '../../../../services/turno.service';
 import { useAlert } from '../../../../shared/hooks/useAlert';
 import ReportePublicacionModal from '../ReportePublicacionModal';
-import CustomToolbar from './CustomToolbar';
+import CalendarioBase from './CalendarioBase';
 import AgregarDetalleModal from './AgregarDetalleModal';
 import DetallesTurnoModal from './DetallesTurnoModal';
 import CalendarioHeader from './CalendarioHeader';
@@ -19,7 +17,6 @@ import {
 } from './utils/calendarHelpers';
 
 moment.locale('es');
-const localizer = momentLocalizer(moment);
 
 /**
  * Modal principal del calendario de horarios
@@ -123,58 +120,23 @@ export default function CalendarioHorarioModal({ horario, modoVista = 'ver', onC
 
         {/* Contenido */}
         <div className="flex-1 p-6 overflow-auto">
-          {loading ? (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center">
-                <div className="inline-block w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-gray-500 mt-4">Cargando calendario...</p>
-              </div>
-            </div>
-          ) : (
-            <div style={{ height: '600px' }}>
-              <Calendar
-                localizer={localizer}
-                events={eventos}
-                startAccessor="start"
-                endAccessor="end"
-                view={view}
-                onView={setView}
-                date={date}
-                onNavigate={setDate}
-                onSelectSlot={soloLectura ? undefined : handleSelectSlot}
-                onSelectEvent={handleSelectEvent}
-                selectable={!soloLectura}
-                components={{
-                  toolbar: (props) => <CustomToolbar {...props} view={view} onView={setView} />
-                }}
-                eventPropGetter={(event) => ({
-                  style: {
-                    backgroundColor: event.resource.color,
-                    borderColor: event.resource.color,
-                    color: 'white',
-                    borderRadius: '6px',
-                    padding: '2px 6px',
-                    fontSize: '0.875rem',
-                    fontWeight: '500'
-                  }
-                })}
-                messages={{
-                  today: 'Hoy',
-                  previous: 'Anterior',
-                  next: 'Siguiente',
-                  month: 'Mes',
-                  week: 'Semana',
-                  day: 'Día',
-                  agenda: 'Agenda',
-                  date: 'Fecha',
-                  time: 'Hora',
-                  event: 'Evento',
-                  noEventsInRange: 'No hay turnos asignados en este rango',
-                  showMore: (total) => `+ Ver más (${total})`
-                }}
-              />
-            </div>
-          )}
+          <CalendarioBase
+            eventos={eventos}
+            view={view}
+            date={date}
+            onView={setView}
+            onNavigate={setDate}
+            onSelectEvent={handleSelectEvent}
+            selectable={!soloLectura}
+            onSelectSlot={handleSelectSlot}
+            accentColor="purple"
+            loading={loading}
+            loadingMessage="Cargando calendario..."
+            loadingColor="purple"
+            messages={{
+              noEventsInRange: 'No hay turnos asignados en este rango'
+            }}
+          />
         </div>
 
         <CalendarioFooter

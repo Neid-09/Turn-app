@@ -1,3 +1,4 @@
+export { default as CalendarioBase } from './CalendarioBase';
 export { default as CalendarioHorarioModal } from './CalendarioHorarioModal';
 export { default as CustomToolbar } from './CustomToolbar';
 export { default as AgregarDetalleModal } from './AgregarDetalleModal';
